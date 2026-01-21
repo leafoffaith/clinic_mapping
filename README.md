@@ -1,6 +1,6 @@
 # Punjab OOAT Clinics Mapper 🏥
 
-Interactive map visualization of Opioid Agonist Treatment (OOAT) centers across Punjab, India.
+Interactive map visualization of Outpatient Opioid Assisted Treatment (OOAT) centers across Punjab, India.
 
 ## Features
 

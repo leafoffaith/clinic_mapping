@@ -1,7 +1,7 @@
 {
   "name": "clinic_mapping",
   "version": "1.0.0",
-  "description": "Interactive map visualization of Opioid Agonist Treatment (OOAT) centers across Punjab, India.",
+  "description": "Interactive map visualization of Outpatient Opioid Assisted Treatment (OOAT) centers across Punjab, India.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
