@@ -1,0 +1,731 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Amritsar"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              74.6,
+              31.5
+            ],
+            [
+              75.15,
+              31.5
+            ],
+            [
+              75.15,
+              31.9
+            ],
+            [
+              74.6,
+              31.9
+            ],
+            [
+              74.6,
+              31.5
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Ludhiana"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              75.6,
+              30.65
+            ],
+            [
+              76.15,
+              30.65
+            ],
+            [
+              76.15,
+              31.1
+            ],
+            [
+              75.6,
+              31.1
+            ],
+            [
+              75.6,
+              30.65
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Jalandhar"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              75.4,
+              31.1
+            ],
+            [
+              75.95,
+              31.1
+            ],
+            [
+              75.95,
+              31.5
+            ],
+            [
+              75.4,
+              31.5
+            ],
+            [
+              75.4,
+              31.1
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Patiala"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              76.1,
+              30.1
+            ],
+            [
+              76.7,
+              30.1
+            ],
+            [
+              76.7,
+              30.6
+            ],
+            [
+              76.1,
+              30.6
+            ],
+            [
+              76.1,
+              30.1
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Bathinda"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              74.7,
+              29.95
+            ],
+            [
+              75.3,
+              29.95
+            ],
+            [
+              75.3,
+              30.4
+            ],
+            [
+              74.7,
+              30.4
+            ],
+            [
+              74.7,
+              29.95
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Gurdaspur"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              75.15,
+              31.9
+            ],
+            [
+              75.7,
+              31.9
+            ],
+            [
+              75.7,
+              32.45
+            ],
+            [
+              75.15,
+              32.45
+            ],
+            [
+              75.15,
+              31.9
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Hoshiarpur"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              75.7,
+              31.4
+            ],
+            [
+              76.3,
+              31.4
+            ],
+            [
+              76.3,
+              31.9
+            ],
+            [
+              75.7,
+              31.9
+            ],
+            [
+              75.7,
+              31.4
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Sangrur"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              75.6,
+              30.1
+            ],
+            [
+              76.1,
+              30.1
+            ],
+            [
+              76.1,
+              30.6
+            ],
+            [
+              75.6,
+              30.6
+            ],
+            [
+              75.6,
+              30.1
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Sahibzada Ajit Singh Nagar"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              76.5,
+              30.5
+            ],
+            [
+              76.9,
+              30.5
+            ],
+            [
+              76.9,
+              30.9
+            ],
+            [
+              76.5,
+              30.9
+            ],
+            [
+              76.5,
+              30.5
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Fazilka"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              73.95,
+              30.25
+            ],
+            [
+              74.6,
+              30.25
+            ],
+            [
+              74.6,
+              30.8
+            ],
+            [
+              73.95,
+              30.8
+            ],
+            [
+              73.95,
+              30.25
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Tarn Taran"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              74.6,
+              31.25
+            ],
+            [
+              75.15,
+              31.25
+            ],
+            [
+              75.15,
+              31.65
+            ],
+            [
+              74.6,
+              31.65
+            ],
+            [
+              74.6,
+              31.25
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Ferozpur"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              74.25,
+              30.65
+            ],
+            [
+              74.9,
+              30.65
+            ],
+            [
+              74.9,
+              31.15
+            ],
+            [
+              74.25,
+              31.15
+            ],
+            [
+              74.25,
+              30.65
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Muktsar"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              74.35,
+              30.2
+            ],
+            [
+              74.9,
+              30.2
+            ],
+            [
+              74.9,
+              30.65
+            ],
+            [
+              74.35,
+              30.65
+            ],
+            [
+              74.35,
+              30.2
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Moga"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              75.0,
+              30.5
+            ],
+            [
+              75.5,
+              30.5
+            ],
+            [
+              75.5,
+              30.95
+            ],
+            [
+              75.0,
+              30.95
+            ],
+            [
+              75.0,
+              30.5
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Fatehgarh Sahib"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              76.2,
+              30.5
+            ],
+            [
+              76.6,
+              30.5
+            ],
+            [
+              76.6,
+              30.85
+            ],
+            [
+              76.2,
+              30.85
+            ],
+            [
+              76.2,
+              30.5
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Barnala"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              75.4,
+              30.2
+            ],
+            [
+              75.75,
+              30.2
+            ],
+            [
+              75.75,
+              30.55
+            ],
+            [
+              75.4,
+              30.55
+            ],
+            [
+              75.4,
+              30.2
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Kapurthala"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              75.25,
+              31.2
+            ],
+            [
+              75.65,
+              31.2
+            ],
+            [
+              75.65,
+              31.5
+            ],
+            [
+              75.25,
+              31.5
+            ],
+            [
+              75.25,
+              31.2
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Shaheed Bhagat Singh Nagar"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              76.0,
+              31.0
+            ],
+            [
+              76.4,
+              31.0
+            ],
+            [
+              76.4,
+              31.35
+            ],
+            [
+              76.0,
+              31.35
+            ],
+            [
+              76.0,
+              31.0
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Mansa"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              75.15,
+              29.85
+            ],
+            [
+              75.6,
+              29.85
+            ],
+            [
+              75.6,
+              30.2
+            ],
+            [
+              75.15,
+              30.2
+            ],
+            [
+              75.15,
+              29.85
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Faridkot"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              74.6,
+              30.4
+            ],
+            [
+              75.0,
+              30.4
+            ],
+            [
+              75.0,
+              30.8
+            ],
+            [
+              74.6,
+              30.8
+            ],
+            [
+              74.6,
+              30.4
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Rupnagar"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              76.3,
+              30.85
+            ],
+            [
+              76.75,
+              30.85
+            ],
+            [
+              76.75,
+              31.2
+            ],
+            [
+              76.3,
+              31.2
+            ],
+            [
+              76.3,
+              30.85
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Pathankot"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              75.5,
+              32.15
+            ],
+            [
+              75.9,
+              32.15
+            ],
+            [
+              75.9,
+              32.5
+            ],
+            [
+              75.5,
+              32.5
+            ],
+            [
+              75.5,
+              32.15
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

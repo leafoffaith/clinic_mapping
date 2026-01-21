@@ -1,0 +1,5536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Punjab OOAT Clinics Mapper</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .stats {
+            display: flex;
+            gap: 30px;
+            margin-top: 15px;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stat-number {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        /* Map Container */
+        .map-wrapper {
+            flex: 1;
+            position: relative;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Control Panel */
+        .controls {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+            max-width: 280px;
+            z-index: 1000;
+        }
+
+        .controls h3 {
+            font-size: 16px;
+            margin-bottom: 12px;
+            color: #2c3e50;
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        .control-group label {
+            display: block;
+            font-size: 13px;
+            color: #555;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
+        .control-group select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            background-color: white;
+            cursor: pointer;
+        }
+
+        .control-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .legend {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+
+        .legend-title {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #2c3e50;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+            font-size: 12px;
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+
+        /* Info Panel */
+        .info-panel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            max-width: 350px;
+            max-height: calc(100vh - 200px);
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+
+        .info-panel.visible {
+            display: block;
+        }
+
+        .info-panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+        }
+
+        .info-panel h3 {
+            color: #2c3e50;
+            font-size: 18px;
+            margin: 0;
+            flex: 1;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+            padding: 0;
+            margin-left: 10px;
+            line-height: 1;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+        .selected-clinic {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+
+        .selected-clinic-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .selected-clinic-district {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        .distances-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .facility-list {
+            list-style: none;
+        }
+
+        .facility-item {
+            padding: 12px;
+            margin-bottom: 8px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            border-left: 3px solid #667eea;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .facility-item:hover {
+            background-color: #e9ecef;
+            transform: translateX(3px);
+        }
+
+        .facility-name {
+            font-size: 14px;
+            color: #2c3e50;
+            margin-bottom: 4px;
+        }
+
+        .facility-distance {
+            font-size: 13px;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .no-clinics {
+            text-align: center;
+            color: #999;
+            padding: 20px;
+            font-size: 14px;
+        }
+
+        /* Loading Indicator */
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            z-index: 2000;
+        }
+
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header {
+                padding: 15px 20px;
+            }
+
+            .header h1 {
+                font-size: 20px;
+            }
+
+            .stats {
+                flex-wrap: wrap;
+                gap: 15px;
+            }
+
+            .controls {
+                max-width: calc(100% - 40px);
+            }
+
+            .info-panel {
+                max-width: calc(100% - 40px);
+                right: 20px;
+                left: 20px;
+            }
+        }
+
+        /* Custom scrollbar */
+        .info-panel::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .info-panel::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .info-panel::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🏥 Punjab OOAT Clinics Mapper</h1>
+            <p>Opioid Agonist Treatment Centers across Punjab</p>
+            <div class="stats">
+                <div class="stat-item">
+                    <span class="stat-number" id="total-clinics">507</span>
+                    <span class="stat-label">Total Clinics</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="total-districts">22</span>
+                    <span class="stat-label">Districts</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="selected-district-count">-</span>
+                    <span class="stat-label">In Selected District</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Map -->
+        <div class="map-wrapper">
+            <div id="map"></div>
+
+            <!-- Controls -->
+            <div class="controls">
+                <h3>Filters</h3>
+                <div class="control-group">
+                    <label for="district-filter">District</label>
+                    <select id="district-filter">
+                        <option value="all">All Districts</option>
+                    </select>
+                </div>
+
+                <div class="legend">
+                    <div class="legend-title">Clinic Status</div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #10b981;"></div>
+                        <span>Functional</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #f59e0b;"></div>
+                        <span>Other Status</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #ef4444;"></div>
+                        <span>Selected</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Info Panel -->
+            <div id="info-panel" class="info-panel">
+                <div class="info-panel-header">
+                    <h3>Distances from Selected Clinic</h3>
+                    <button class="close-btn" onclick="closeInfoPanel()">×</button>
+                </div>
+                <div id="selected-clinic-info"></div>
+                <div class="distances-title">Nearby Clinics in Same District</div>
+                <ul id="facility-list" class="facility-list"></ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // DATA EMBEDDED - Replace with your actual data
+        // ============================================
+        
+        // This will be populated from the external JSON file
+        let CLINICS_DATA = [];
+        let DISTRICTS_GEOJSON = null;
+
+        // ============================================
+        // CONFIGURATION
+        // ============================================
+        const CONFIG = {
+            punjabCenter: { lat: 30.9010, lng: 75.8573 },
+            defaultZoom: 8,
+            selectedZoom: 11
+        };
+
+        // ============================================
+        // MAP VARIABLES
+        // ============================================
+        let map;
+        let districtPolygons = [];
+        let clinicMarkers = [];
+        let selectedMarker = null;
+        let selectedClinic = null;
+
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+        async function initMap() {
+            // Initialize map
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: CONFIG.punjabCenter,
+                zoom: CONFIG.defaultZoom,
+                mapTypeControl: true,
+                streetViewControl: false,
+                fullscreenControl: true,
+                styles: [
+                    {
+                        featureType: 'poi',
+                        elementType: 'labels',
+                        stylers: [{ visibility: 'off' }]
+                    }
+                ]
+            });
+
+            // Load data
+            await loadData();
+            
+            // Initialize UI
+            populateDistrictFilter();
+            loadDistrictBoundaries();
+            loadClinics();
+        }
+
+        // ============================================
+        // DATA LOADING
+        // ============================================
+        async function loadData() {
+            // In a real deployment, these would be separate JSON files
+            // For GitHub Pages/Netlify, you can load them via fetch
+            
+            // For now, we'll embed the data directly
+            // You can replace this with: await fetch('clinics.json').then(r => r.json())
+            
+            CLINICS_DATA = EMBEDDED_CLINICS_DATA;
+            DISTRICTS_GEOJSON = EMBEDDED_DISTRICTS_GEOJSON;
+        }
+
+        // ============================================
+        // DISTRICT BOUNDARIES
+        // ============================================
+        function loadDistrictBoundaries() {
+            if (!DISTRICTS_GEOJSON) return;
+
+            DISTRICTS_GEOJSON.features.forEach(feature => {
+                const districtName = feature.properties.name;
+                const coordinates = feature.geometry.coordinates[0];
+                
+                const paths = coordinates.map(coord => ({
+                    lat: coord[1],
+                    lng: coord[0]
+                }));
+
+                const polygon = new google.maps.Polygon({
+                    paths: paths,
+                    strokeColor: '#667eea',
+                    strokeOpacity: 0.6,
+                    strokeWeight: 2,
+                    fillColor: '#667eea',
+                    fillOpacity: 0.08,
+                    map: map
+                });
+
+                const infoWindow = new google.maps.InfoWindow();
+                
+                polygon.addListener('click', (event) => {
+                    const clinicsInDistrict = CLINICS_DATA.filter(
+                        c => c.district === districtName
+                    ).length;
+                    
+                    infoWindow.setContent(`
+                        <div style="padding: 10px;">
+                            <h4 style="margin: 0 0 8px 0; color: #2c3e50; font-size: 16px;">
+                                ${districtName}
+                            </h4>
+                            <p style="margin: 0; font-size: 14px; color: #666;">
+                                ${clinicsInDistrict} OOAT Clinic${clinicsInDistrict !== 1 ? 's' : ''}
+                            </p>
+                        </div>
+                    `);
+                    infoWindow.setPosition(event.latLng);
+                    infoWindow.open(map);
+                });
+
+                districtPolygons.push({ name: districtName, polygon, infoWindow });
+            });
+        }
+
+        // ============================================
+        // CLINIC MARKERS
+        // ============================================
+        function loadClinics(filterDistrict = 'all') {
+            // Clear existing markers
+            clinicMarkers.forEach(({ marker }) => marker.setMap(null));
+            clinicMarkers = [];
+
+            // Filter clinics
+            const clinicsToShow = filterDistrict === 'all' 
+                ? CLINICS_DATA 
+                : CLINICS_DATA.filter(c => c.district === filterDistrict);
+
+            // Update stats
+            document.getElementById('selected-district-count').textContent = 
+                filterDistrict === 'all' ? '-' : clinicsToShow.length;
+
+            // Create markers
+            clinicsToShow.forEach(clinic => {
+                const isFunctional = clinic.status && 
+                    clinic.status.toLowerCase().includes('functional');
+
+                const marker = new google.maps.Marker({
+                    position: { lat: clinic.lat, lng: clinic.lng },
+                    map: map,
+                    title: clinic.name,
+                    icon: {
+                        path: google.maps.SymbolPath.CIRCLE,
+                        scale: 7,
+                        fillColor: isFunctional ? '#10b981' : '#f59e0b',
+                        fillOpacity: 0.9,
+                        strokeColor: '#ffffff',
+                        strokeWeight: 2
+                    }
+                });
+
+                marker.addListener('click', () => {
+                    handleMarkerClick(clinic, marker);
+                });
+
+                clinicMarkers.push({ clinic, marker });
+            });
+
+            // Fit bounds if filtering by district
+            if (filterDistrict !== 'all' && clinicsToShow.length > 0) {
+                const bounds = new google.maps.LatLngBounds();
+                clinicsToShow.forEach(clinic => {
+                    bounds.extend({ lat: clinic.lat, lng: clinic.lng });
+                });
+                map.fitBounds(bounds);
+            }
+        }
+
+        // ============================================
+        // MARKER INTERACTION
+        // ============================================
+        function handleMarkerClick(clinic, marker) {
+            // Reset previous selection
+            if (selectedMarker && selectedMarker !== marker) {
+                const prevClinic = selectedClinic;
+                const isFunctional = prevClinic.status && 
+                    prevClinic.status.toLowerCase().includes('functional');
+                
+                selectedMarker.setIcon({
+                    path: google.maps.SymbolPath.CIRCLE,
+                    scale: 7,
+                    fillColor: isFunctional ? '#10b981' : '#f59e0b',
+                    fillOpacity: 0.9,
+                    strokeColor: '#ffffff',
+                    strokeWeight: 2
+                });
+            }
+
+            // Highlight selected marker
+            marker.setIcon({
+                path: google.maps.SymbolPath.CIRCLE,
+                scale: 10,
+                fillColor: '#ef4444',
+                fillOpacity: 1,
+                strokeColor: '#ffffff',
+                strokeWeight: 3
+            });
+
+            selectedMarker = marker;
+            selectedClinic = clinic;
+
+            // Calculate distances to clinics in same district
+            const clinicsInSameDistrict = findClinicsInSameDistrict(clinic);
+            
+            // Display info panel
+            displayDistances(clinic, clinicsInSameDistrict);
+            
+            // Center map on selected location
+            map.panTo({ lat: clinic.lat, lng: clinic.lng });
+            if (map.getZoom() < CONFIG.selectedZoom) {
+                map.setZoom(CONFIG.selectedZoom);
+            }
+        }
+
+        function findClinicsInSameDistrict(selectedClinic) {
+            return CLINICS_DATA
+                .filter(c => c.district === selectedClinic.district && c.id !== selectedClinic.id)
+                .map(c => {
+                    const distance = calculateDistance(
+                        selectedClinic.lat, selectedClinic.lng,
+                        c.lat, c.lng
+                    );
+                    return { ...c, distance };
+                })
+                .sort((a, b) => a.distance - b.distance);
+        }
+
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; // Earth's radius in km
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = 
+                Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
+        }
+
+        function displayDistances(clinic, nearbyClinicsList) {
+            const infoPanel = document.getElementById('info-panel');
+            const selectedInfo = document.getElementById('selected-clinic-info');
+            const facilityList = document.getElementById('facility-list');
+            
+            // Show selected clinic info
+            selectedInfo.innerHTML = `
+                <div class="selected-clinic">
+                    <div class="selected-clinic-name">${clinic.name}</div>
+                    <div class="selected-clinic-district">📍 ${clinic.district} District</div>
+                </div>
+            `;
+            
+            // Show nearby clinics
+            if (nearbyClinicsList.length === 0) {
+                facilityList.innerHTML = `
+                    <div class="no-clinics">
+                        No other clinics in ${clinic.district} district
+                    </div>
+                `;
+            } else {
+                facilityList.innerHTML = '';
+                nearbyClinicsList.forEach(facility => {
+                    const li = document.createElement('li');
+                    li.className = 'facility-item';
+                    li.innerHTML = `
+                        <div class="facility-name">${facility.name}</div>
+                        <div class="facility-distance">
+                            ${facility.distance.toFixed(2)} km away
+                        </div>
+                    `;
+                    
+                    // Click to pan to this facility
+                    li.addEventListener('click', () => {
+                        const facilityMarker = clinicMarkers.find(
+                            m => m.clinic.id === facility.id
+                        );
+                        if (facilityMarker) {
+                            handleMarkerClick(facility, facilityMarker.marker);
+                        }
+                    });
+                    
+                    facilityList.appendChild(li);
+                });
+            }
+            
+            infoPanel.classList.add('visible');
+        }
+
+        function closeInfoPanel() {
+            document.getElementById('info-panel').classList.remove('visible');
+            
+            if (selectedMarker && selectedClinic) {
+                const isFunctional = selectedClinic.status && 
+                    selectedClinic.status.toLowerCase().includes('functional');
+                
+                selectedMarker.setIcon({
+                    path: google.maps.SymbolPath.CIRCLE,
+                    scale: 7,
+                    fillColor: isFunctional ? '#10b981' : '#f59e0b',
+                    fillOpacity: 0.9,
+                    strokeColor: '#ffffff',
+                    strokeWeight: 2
+                });
+                
+                selectedMarker = null;
+                selectedClinic = null;
+            }
+        }
+
+        // ============================================
+        // UI CONTROLS
+        // ============================================
+        function populateDistrictFilter() {
+            const select = document.getElementById('district-filter');
+            const districts = [...new Set(CLINICS_DATA.map(c => c.district))].sort();
+            
+            districts.forEach(district => {
+                const option = document.createElement('option');
+                option.value = district;
+                option.textContent = district;
+                select.appendChild(option);
+            });
+
+            select.addEventListener('change', (e) => {
+                closeInfoPanel();
+                loadClinics(e.target.value);
+            });
+        }
+
+        // ============================================
+        // EMBEDDED DATA PLACEHOLDERS
+        // ============================================
+        // These will be replaced with actual data
+        const EMBEDDED_CLINICS_DATA = [
+  {
+    "id": 1,
+    "name": "Drug Rehabilitation Centre, Dhobhi Ghat, Amritsar",
+    "district": "Amritsar",
+    "lat": 31.6483,
+    "lng": 74.88383,
+    "status": "Functional"
+  },
+  {
+    "id": 2,
+    "name": "Central Jail, Amritsar",
+    "district": "Amritsar",
+    "lat": 31.601132794958,
+    "lng": 74.8433260819208,
+    "status": "Functional"
+  },
+  {
+    "id": 3,
+    "name": "PHC Chawinda Devi",
+    "district": "Amritsar",
+    "lat": 31.71625,
+    "lng": 75.09745,
+    "status": "Functional"
+  },
+  {
+    "id": 4,
+    "name": "SDH Baba Bakala",
+    "district": "Amritsar",
+    "lat": 31.5574014632461,
+    "lng": 75.2666556406716,
+    "status": "Functional"
+  },
+  {
+    "id": 5,
+    "name": "SDH Ajnala",
+    "district": "Amritsar",
+    "lat": 31.84391,
+    "lng": 74.76251,
+    "status": "Functional"
+  },
+  {
+    "id": 6,
+    "name": "CHC Tarsika",
+    "district": "Amritsar",
+    "lat": 31.6440255198996,
+    "lng": 75.119300013725,
+    "status": "Functional"
+  },
+  {
+    "id": 7,
+    "name": "CHC Lopoke",
+    "district": "Amritsar",
+    "lat": 31.7181101607935,
+    "lng": 74.6266078723938,
+    "status": "Functional"
+  },
+  {
+    "id": 8,
+    "name": "CHC Majitha",
+    "district": "Amritsar",
+    "lat": 31.75736,
+    "lng": 74.96097,
+    "status": "Functional"
+  },
+  {
+    "id": 9,
+    "name": "CHC Manawala",
+    "district": "Amritsar",
+    "lat": 31.58336,
+    "lng": 74.98572,
+    "status": "Functional"
+  },
+  {
+    "id": 10,
+    "name": "CHC Verka",
+    "district": "Amritsar",
+    "lat": 31.6625009889322,
+    "lng": 74.9266259819238,
+    "status": "Functional"
+  },
+  {
+    "id": 11,
+    "name": "CHC Mehta",
+    "district": "Amritsar",
+    "lat": 31.6759,
+    "lng": 75.2508,
+    "status": "Functional"
+  },
+  {
+    "id": 12,
+    "name": "Maqboolpura Drug Hotspot Treatment",
+    "district": "Amritsar",
+    "lat": 31.6268967,
+    "lng": 74.901426,
+    "status": "Functional"
+  },
+  {
+    "id": 13,
+    "name": "SHC Sultanwind Pilot Project",
+    "district": "Amritsar",
+    "lat": 31.6031,
+    "lng": 74.9091,
+    "status": "Functional"
+  },
+  {
+    "id": 14,
+    "name": "PHC Raja Sansi",
+    "district": "Amritsar",
+    "lat": 31.7218706347681,
+    "lng": 74.8011543377465,
+    "status": "Functional"
+  },
+  {
+    "id": 15,
+    "name": "PHC Khalchian",
+    "district": "Amritsar",
+    "lat": 31.54964,
+    "lng": 75.17496,
+    "status": "Functional"
+  },
+  {
+    "id": 16,
+    "name": "PHC Butala",
+    "district": "Amritsar",
+    "lat": 31.61192,
+    "lng": 75.32496,
+    "status": "Functional"
+  },
+  {
+    "id": 17,
+    "name": "PHC Attari",
+    "district": "Amritsar",
+    "lat": 31.604767552904,
+    "lng": 74.6077802759635,
+    "status": "Functional"
+  },
+  {
+    "id": 20,
+    "name": "PHC Veer Pal",
+    "district": "Amritsar",
+    "lat": 31.54762,
+    "lng": 74.91559,
+    "status": "Functional"
+  },
+  {
+    "id": 21,
+    "name": "PHC Wadla Viram",
+    "district": "Amritsar",
+    "lat": 31.8221,
+    "lng": 74.9846,
+    "status": "Functional"
+  },
+  {
+    "id": 22,
+    "name": "PHC Ramdas",
+    "district": "Amritsar",
+    "lat": 31.96279,
+    "lng": 74.90555,
+    "status": "Functional"
+  },
+  {
+    "id": 23,
+    "name": "PHC Gaggo Mehal",
+    "district": "Amritsar",
+    "lat": 31.90971,
+    "lng": 74.811508,
+    "status": "Functional"
+  },
+  {
+    "id": 24,
+    "name": "Bhai Mohkam Singh Memorial Satelite Hospital",
+    "district": "Amritsar",
+    "lat": 31.61035,
+    "lng": 74.87544,
+    "status": "Functional"
+  },
+  {
+    "id": 25,
+    "name": "UPHC Bhagtanwala",
+    "district": "Amritsar",
+    "lat": 31.6106,
+    "lng": 74.87221,
+    "status": "Functional"
+  },
+  {
+    "id": 26,
+    "name": "UPHC Gate Khazana",
+    "district": "Amritsar",
+    "lat": 31.62182,
+    "lng": 74.86585,
+    "status": "Functional"
+  },
+  {
+    "id": 27,
+    "name": "UPHC Gawal Mandi",
+    "district": "Amritsar",
+    "lat": 31.63546,
+    "lng": 74.85338,
+    "status": "Functional"
+  },
+  {
+    "id": 28,
+    "name": "UPHC Haripura",
+    "district": "Amritsar",
+    "lat": 31.62733,
+    "lng": 74.84911,
+    "status": "Functional"
+  },
+  {
+    "id": 29,
+    "name": "UPHC Jodhnagar",
+    "district": "Amritsar",
+    "lat": 31.61241,
+    "lng": 74.89024,
+    "status": "Functional"
+  },
+  {
+    "id": 30,
+    "name": "UPHC Putligarh",
+    "district": "Amritsar",
+    "lat": 31.63708,
+    "lng": 74.84453,
+    "status": "Functional"
+  },
+  {
+    "id": 31,
+    "name": "UPHC Rambagh",
+    "district": "Amritsar",
+    "lat": 31.62942,
+    "lng": 74.88124,
+    "status": "Functional"
+  },
+  {
+    "id": 32,
+    "name": "Bhai Daya Singh Memorial Satelite Hospital",
+    "district": "Amritsar",
+    "lat": 31.6577,
+    "lng": 74.90744,
+    "status": "Functional"
+  },
+  {
+    "id": 33,
+    "name": "Bhai Dharam Singh Memorial Satelite Hospital",
+    "district": "Amritsar",
+    "lat": 31.66114,
+    "lng": 74.86696,
+    "status": "Functional"
+  },
+  {
+    "id": 34,
+    "name": "Bhai Himant Singh Memorial Satelite Hospital",
+    "district": "Amritsar",
+    "lat": 31.63861,
+    "lng": 74.80843,
+    "status": "Functional"
+  },
+  {
+    "id": 35,
+    "name": "Bhai Sahib Singh Memorial Satelite Hospital",
+    "district": "Amritsar",
+    "lat": 31.59718,
+    "lng": 74.8414,
+    "status": "Functional"
+  },
+  {
+    "id": 36,
+    "name": "UPHC Basant Avenue",
+    "district": "Amritsar",
+    "lat": 31.65187,
+    "lng": 74.87321,
+    "status": "Functional"
+  },
+  {
+    "id": 37,
+    "name": "UPHC Chheherta",
+    "district": "Amritsar",
+    "lat": 31.62818,
+    "lng": 74.80341,
+    "status": "Functional"
+  },
+  {
+    "id": 38,
+    "name": "UPHC Kangara Colony",
+    "district": "Amritsar",
+    "lat": 31.63874,
+    "lng": 74.90259,
+    "status": "Functional"
+  },
+  {
+    "id": 39,
+    "name": "UPHC Kot Khalsa",
+    "district": "Amritsar",
+    "lat": 31.62251,
+    "lng": 74.82738,
+    "status": "Functional"
+  },
+  {
+    "id": 41,
+    "name": "UCHC Naraingarh Chahreta",
+    "district": "Amritsar",
+    "lat": 31.6293577219272,
+    "lng": 74.7790655554618,
+    "status": "Functional"
+  },
+  {
+    "id": 42,
+    "name": "CH Amritsar",
+    "district": "Amritsar",
+    "lat": 31.6340509,
+    "lng": 74.8787685,
+    "status": "Functional"
+  },
+  {
+    "id": 43,
+    "name": "PHC Threawal",
+    "district": "Amritsar",
+    "lat": 31.7713754191324,
+    "lng": 75.0500522684374,
+    "status": "Functional"
+  },
+  {
+    "id": 44,
+    "name": "Drug Rehabilitation Centre, Sohal Patti, Barnala",
+    "district": "Barnala",
+    "lat": 30.379411,
+    "lng": 75.489424,
+    "status": "Functional"
+  },
+  {
+    "id": 45,
+    "name": "SDH Tapa",
+    "district": "Barnala",
+    "lat": 30.30721,
+    "lng": 75.37315,
+    "status": "Functional"
+  },
+  {
+    "id": 46,
+    "name": "CHC Dhanaula",
+    "district": "Barnala",
+    "lat": 30.28327,
+    "lng": 75.577473,
+    "status": "Functional"
+  },
+  {
+    "id": 47,
+    "name": "CHC Mehal Kalan",
+    "district": "Barnala",
+    "lat": 30.5319,
+    "lng": 75.56821,
+    "status": "Functional"
+  },
+  {
+    "id": 48,
+    "name": "CHC Channawal",
+    "district": "Barnala",
+    "lat": 30.50911,
+    "lng": 75.49495,
+    "status": "Functional"
+  },
+  {
+    "id": 49,
+    "name": "CHC Bhadaur",
+    "district": "Barnala",
+    "lat": 30.474272,
+    "lng": 75.326645,
+    "status": "Functional"
+  },
+  {
+    "id": 50,
+    "name": "DISTRICT JAIL",
+    "district": "Barnala",
+    "lat": 30.388675,
+    "lng": 75.497685,
+    "status": "Functional"
+  },
+  {
+    "id": 51,
+    "name": "PHC Shekha",
+    "district": "Barnala",
+    "lat": 30.57089,
+    "lng": 75.01288,
+    "status": "Non Functional"
+  },
+  {
+    "id": 52,
+    "name": "PHC Hamidi",
+    "district": "Barnala",
+    "lat": 30.463668,
+    "lng": 75.604484,
+    "status": "Functional"
+  },
+  {
+    "id": 53,
+    "name": "PHC Rurke Kalan",
+    "district": "Barnala",
+    "lat": 30.2529365,
+    "lng": 75.444979,
+    "status": "Functional"
+  },
+  {
+    "id": 54,
+    "name": "PHC Sehna",
+    "district": "Barnala",
+    "lat": 30.43136,
+    "lng": 75.3759,
+    "status": "Non Functional"
+  },
+  {
+    "id": 55,
+    "name": "PHC Chhapa",
+    "district": "Barnala",
+    "lat": 30.55024,
+    "lng": 75.65039,
+    "status": "Functional"
+  },
+  {
+    "id": 56,
+    "name": "UPHC Prem Nagar",
+    "district": "Barnala",
+    "lat": 30.35884,
+    "lng": 75.55372,
+    "status": "Functional"
+  },
+  {
+    "id": 57,
+    "name": "UPHC Sandhu Patti",
+    "district": "Barnala",
+    "lat": 30.38206,
+    "lng": 75.54952,
+    "status": "Non Functional"
+  },
+  {
+    "id": 58,
+    "name": "CH Barnala",
+    "district": "Barnala",
+    "lat": 30.375582,
+    "lng": 75.542902,
+    "status": "Functional"
+  },
+  {
+    "id": 59,
+    "name": "DH Bathinda",
+    "district": "Bathinda",
+    "lat": 30.16948,
+    "lng": 74.96507,
+    "status": "Functional"
+  },
+  {
+    "id": 60,
+    "name": "Central Jail, Bathinda",
+    "district": "Bathinda",
+    "lat": 30.19659,
+    "lng": 74.95362,
+    "status": "Functional"
+  },
+  {
+    "id": 61,
+    "name": "SDH Rampura Phul",
+    "district": "Bathinda",
+    "lat": 30.2701,
+    "lng": 75.2398,
+    "status": "Functional"
+  },
+  {
+    "id": 62,
+    "name": "SDH Talwandi Sabo",
+    "district": "Bathinda",
+    "lat": 29.91848,
+    "lng": 75.1119,
+    "status": "Functional"
+  },
+  {
+    "id": 63,
+    "name": "CHC Bhagta",
+    "district": "Bathinda",
+    "lat": 30.2661,
+    "lng": 75.858,
+    "status": "Functional"
+  },
+  {
+    "id": 64,
+    "name": "CHC Goniana",
+    "district": "Bathinda",
+    "lat": 30.31991,
+    "lng": 74.91794,
+    "status": "Functional"
+  },
+  {
+    "id": 65,
+    "name": "CHC Nathana",
+    "district": "Bathinda",
+    "lat": 30.3391,
+    "lng": 75.00215,
+    "status": "Functional"
+  },
+  {
+    "id": 66,
+    "name": "CHC Mehraj",
+    "district": "Bathinda",
+    "lat": 30.31086,
+    "lng": 75.23732,
+    "status": "Functional"
+  },
+  {
+    "id": 67,
+    "name": "CHC Bucho Mandi",
+    "district": "Bathinda",
+    "lat": 30.21323,
+    "lng": 75.0903,
+    "status": "Functional"
+  },
+  {
+    "id": 68,
+    "name": "CHC Sangat",
+    "district": "Bathinda",
+    "lat": 30.211,
+    "lng": 74.94546,
+    "status": "Functional"
+  },
+  {
+    "id": 69,
+    "name": "CHC Maur Mandi",
+    "district": "Bathinda",
+    "lat": 30.03166,
+    "lng": 75.24011,
+    "status": "Functional"
+  },
+  {
+    "id": 70,
+    "name": "CHC Rama Mandi",
+    "district": "Bathinda",
+    "lat": 29.96155,
+    "lng": 74.94475,
+    "status": "Functional"
+  },
+  {
+    "id": 71,
+    "name": "PHC Virk Kalan",
+    "district": "Bathinda",
+    "lat": 30.030166,
+    "lng": 74.82069,
+    "status": "Functional"
+  },
+  {
+    "id": 72,
+    "name": "Special Jail, Bathinda",
+    "district": "Bathinda",
+    "lat": 30.19659,
+    "lng": 74.95362,
+    "status": "Functional"
+  },
+  {
+    "id": 73,
+    "name": "CHC,Ballianwali",
+    "district": "Bathinda",
+    "lat": 30.2661,
+    "lng": 75.25343,
+    "status": "Functional"
+  },
+  {
+    "id": 74,
+    "name": "PHC Maiser Khana",
+    "district": "Bathinda",
+    "lat": 30.03166,
+    "lng": 75.24011,
+    "status": "Functional"
+  },
+  {
+    "id": 75,
+    "name": "PHC Kotshamir",
+    "district": "Bathinda",
+    "lat": 30.10875,
+    "lng": 75.091,
+    "status": "Functional"
+  },
+  {
+    "id": 76,
+    "name": "PHC Jeeda",
+    "district": "Bathinda",
+    "lat": 30.37376,
+    "lng": 74.98844,
+    "status": "Functional"
+  },
+  {
+    "id": 77,
+    "name": "SDH Ghudda",
+    "district": "Bathinda",
+    "lat": 30.12448,
+    "lng": 74.78928,
+    "status": "Functional"
+  },
+  {
+    "id": 78,
+    "name": "PHC Pakka Kalan",
+    "district": "Bathinda",
+    "lat": 30.03494,
+    "lng": 74.85074,
+    "status": "Functional"
+  },
+  {
+    "id": 79,
+    "name": "PHC Chak Atar Singh Wala",
+    "district": "Bathinda",
+    "lat": 30.04094,
+    "lng": 74.82516,
+    "status": "Functional"
+  },
+  {
+    "id": 80,
+    "name": "PHC Lehra Mohabbat",
+    "district": "Bathinda",
+    "lat": 30.23853,
+    "lng": 75.16501,
+    "status": "Functional"
+  },
+  {
+    "id": 81,
+    "name": "PHC Dyal Pur Mirja",
+    "district": "Bathinda",
+    "lat": 30.35155,
+    "lng": 75.08055,
+    "status": "Functional"
+  },
+  {
+    "id": 82,
+    "name": "PHC Mandi Kalan",
+    "district": "Bathinda",
+    "lat": 30.2661,
+    "lng": 75.25343,
+    "status": "Functional"
+  },
+  {
+    "id": 83,
+    "name": "UPHC Beant Nagar",
+    "district": "Bathinda",
+    "lat": 30.20672,
+    "lng": 74.96462,
+    "status": "Functional"
+  },
+  {
+    "id": 84,
+    "name": "UPHC Janta Nagar",
+    "district": "Bathinda",
+    "lat": 30.22841,
+    "lng": 74.9278,
+    "status": "Functional"
+  },
+  {
+    "id": 85,
+    "name": "UPHC Lal Singh Basti",
+    "district": "Bathinda",
+    "lat": 30.19759,
+    "lng": 74.92886,
+    "status": "Functional"
+  },
+  {
+    "id": 86,
+    "name": "UPHC Parasram Nagar",
+    "district": "Bathinda",
+    "lat": 30.21084,
+    "lng": 74.92284,
+    "status": "Functional"
+  },
+  {
+    "id": 87,
+    "name": "Mandi Phul UPHC",
+    "district": "Bathinda",
+    "lat": 30.31086,
+    "lng": 75.23732,
+    "status": "Functional"
+  },
+  {
+    "id": 88,
+    "name": "Drug Rehabilitation Centre, Arriyan Wala Road, Faridkot",
+    "district": "Faridkot",
+    "lat": 30.68315,
+    "lng": 74.741091,
+    "status": "Functional"
+  },
+  {
+    "id": 89,
+    "name": "SDH Kot Kapura",
+    "district": "Faridkot",
+    "lat": 30.585275,
+    "lng": 74.819489,
+    "status": "Functional"
+  },
+  {
+    "id": 90,
+    "name": "Central Jail Faridkot",
+    "district": "Faridkot",
+    "lat": 30.6900467,
+    "lng": 74.779933,
+    "status": "Functional"
+  },
+  {
+    "id": 91,
+    "name": "CHC Baja Khana",
+    "district": "Faridkot",
+    "lat": 30.4553,
+    "lng": 74.9808,
+    "status": "Functional"
+  },
+  {
+    "id": 92,
+    "name": "CHC Sadiq",
+    "district": "Faridkot",
+    "lat": 30.710235,
+    "lng": 74.581997,
+    "status": "Functional"
+  },
+  {
+    "id": 93,
+    "name": "CHC Jaitu",
+    "district": "Faridkot",
+    "lat": 30.44963,
+    "lng": 74.88239,
+    "status": "Functional"
+  },
+  {
+    "id": 94,
+    "name": "DH Faridkot",
+    "district": "Faridkot",
+    "lat": 30.679213,
+    "lng": 74.760754,
+    "status": "Functional"
+  },
+  {
+    "id": 95,
+    "name": "PHC Golewala Aulakh Road",
+    "district": "Faridkot",
+    "lat": 30.7991826,
+    "lng": 74.6941486,
+    "status": "Functional"
+  },
+  {
+    "id": 96,
+    "name": "PHC Panjgarain Kalan Aulakh Road",
+    "district": "Faridkot",
+    "lat": 30.611978,
+    "lng": 74.914208,
+    "status": "Functional"
+  },
+  {
+    "id": 97,
+    "name": "PHC Jand Sahib",
+    "district": "Faridkot",
+    "lat": 30.689447,
+    "lng": 74.529051,
+    "status": "Functional"
+  },
+  {
+    "id": 98,
+    "name": "PHC Guru Sar",
+    "district": "Faridkot",
+    "lat": 30.5287,
+    "lng": 74.8938,
+    "status": "Functional"
+  },
+  {
+    "id": 99,
+    "name": "UPHC Balbir Basti",
+    "district": "Faridkot",
+    "lat": 30.67419,
+    "lng": 74.76619,
+    "status": "Functional"
+  },
+  {
+    "id": 100,
+    "name": "UPHC GGS Faridkot",
+    "district": "Faridkot",
+    "lat": 30.678472,
+    "lng": 74.740615,
+    "status": "Functional"
+  },
+  {
+    "id": 101,
+    "name": "UPHC Basti Surgapur Kotkapura",
+    "district": "Faridkot",
+    "lat": 30.5796,
+    "lng": 74.8134,
+    "status": "Functional"
+  },
+  {
+    "id": 102,
+    "name": "Drug Rehabilitation Centre, Vill. Bahman Majra, Fatehgarh Sahib",
+    "district": "Fatehgarh Sahib",
+    "lat": 30.6240921,
+    "lng": 76.39122,
+    "status": "Functional"
+  },
+  {
+    "id": 103,
+    "name": "SDH Mandi Gobindgarh",
+    "district": "Fatehgarh Sahib",
+    "lat": 30.6686,
+    "lng": 76.2949,
+    "status": "Functional"
+  },
+  {
+    "id": 104,
+    "name": "CHC Chanarthal Kalan",
+    "district": "Fatehgarh Sahib",
+    "lat": 30.5176,
+    "lng": 76.3449,
+    "status": "Functional"
+  },
+  {
+    "id": 105,
+    "name": "CHC Khera",
+    "district": "Fatehgarh Sahib",
+    "lat": 30.60430672,
+    "lng": 76.48750882,
+    "status": "Functional"
+  },
+  {
+    "id": 106,
+    "name": "CHC Amloh",
+    "district": "Fatehgarh Sahib",
+    "lat": 30.61,
+    "lng": 76.23,
+    "status": "Functional"
+  },
+  {
+    "id": 107,
+    "name": "CHC Bassi Pathana",
+    "district": "Fatehgarh Sahib",
+    "lat": 30.7097,
+    "lng": 76.4084,
+    "status": "Functional"
+  },
+  {
+    "id": 108,
+    "name": "CHC Khamano",
+    "district": "Fatehgarh Sahib",
+    "lat": 30.81725,
+    "lng": 76.35478,
+    "status": "Functional"
+  },
+  {
+    "id": 109,
+    "name": "PHC Nandpur Kalaur",
+    "district": "Fatehgarh Sahib",
+    "lat": 30.71571,
+    "lng": 76.47523,
+    "status": "Functional"
+  },
+  {
+    "id": 110,
+    "name": "PHC Bhagrana",
+    "district": "Fatehgarh Sahib",
+    "lat": 30.6042,
+    "lng": 76.5759,
+    "status": "Functional"
+  },
+  {
+    "id": 111,
+    "name": "PHC Nogawan",
+    "district": "Fatehgarh Sahib",
+    "lat": 30.74175,
+    "lng": 76.77269,
+    "status": "Non Functional"
+  },
+  {
+    "id": 112,
+    "name": "PHC Mulepur",
+    "district": "Fatehgarh Sahib",
+    "lat": 30.4989,
+    "lng": 76.4281,
+    "status": "Functional"
+  },
+  {
+    "id": 113,
+    "name": "PHC Sangat Pur Sodian",
+    "district": "Fatehgarh Sahib",
+    "lat": 30.5734,
+    "lng": 76.3607,
+    "status": "Functional"
+  },
+  {
+    "id": 114,
+    "name": "PHC Ladpur",
+    "district": "Fatehgarh Sahib",
+    "lat": 30.59772,
+    "lng": 76.14948,
+    "status": "Functional"
+  },
+  {
+    "id": 115,
+    "name": "PHC Sanghol",
+    "district": "Fatehgarh Sahib",
+    "lat": 30.7842,
+    "lng": 76.3921,
+    "status": "Functional"
+  },
+  {
+    "id": 116,
+    "name": "PHC Bhari",
+    "district": "Fatehgarh Sahib",
+    "lat": 30.7473571,
+    "lng": 76.32545,
+    "status": "Functional"
+  },
+  {
+    "id": 117,
+    "name": "UPHC 1 / UPHC Gobindgarh",
+    "district": "Fatehgarh Sahib",
+    "lat": 30.39,
+    "lng": 76.2324,
+    "status": "Functional"
+  },
+  {
+    "id": 118,
+    "name": "UPHC Bara",
+    "district": "Fatehgarh Sahib",
+    "lat": 30.61528,
+    "lng": 76.3794,
+    "status": "Functional"
+  },
+  {
+    "id": 119,
+    "name": "CH Fatehgarh Sahib",
+    "district": "Fatehgarh Sahib",
+    "lat": 30.6466,
+    "lng": 76.3901,
+    "status": "Functional"
+  },
+  {
+    "id": 120,
+    "name": "Drug Rehabilitation Centre, Village Jatwali, Fazilka",
+    "district": "Fazilka",
+    "lat": 30.403648,
+    "lng": 74.027962,
+    "status": "Functional"
+  },
+  {
+    "id": 121,
+    "name": "SDH Abohar",
+    "district": "Fazilka",
+    "lat": 30.143044,
+    "lng": 74.197077,
+    "status": "Functional"
+  },
+  {
+    "id": 122,
+    "name": "CHC Dhabwala Kalan",
+    "district": "Fazilka",
+    "lat": 30.3288,
+    "lng": 74.2576,
+    "status": "Functional"
+  },
+  {
+    "id": 123,
+    "name": "CHC Khui Khera",
+    "district": "Fazilka",
+    "lat": 30.295617,
+    "lng": 74.098658,
+    "status": "Functional"
+  },
+  {
+    "id": 124,
+    "name": "CHC Sito Gunno",
+    "district": "Fazilka",
+    "lat": 30.028499,
+    "lng": 74.362434,
+    "status": "Functional"
+  },
+  {
+    "id": 125,
+    "name": "CHC Wahabwala",
+    "district": "Fazilka",
+    "lat": 30.24745,
+    "lng": 74.01421,
+    "status": "Functional"
+  },
+  {
+    "id": 126,
+    "name": "CHC Ramsara",
+    "district": "Fazilka",
+    "lat": 30.403648,
+    "lng": 74.027962,
+    "status": "Functional"
+  },
+  {
+    "id": 127,
+    "name": "CHC Jalalabadh",
+    "district": "Fazilka",
+    "lat": 30.6278,
+    "lng": 74.262,
+    "status": "Functional"
+  },
+  {
+    "id": 128,
+    "name": "PHC Taliwal Bodhla",
+    "district": "Fazilka",
+    "lat": 30.80093,
+    "lng": 74.51638,
+    "status": "Functional"
+  },
+  {
+    "id": 129,
+    "name": "PHC Karni Khera",
+    "district": "Fazilka",
+    "lat": 30.37303,
+    "lng": 73.97988,
+    "status": "Functional"
+  },
+  {
+    "id": 130,
+    "name": "PHC Kundal",
+    "district": "Fazilka",
+    "lat": 30.2146,
+    "lng": 74.2635,
+    "status": "Functional"
+  },
+  {
+    "id": 131,
+    "name": "PHC Waryam Khera",
+    "district": "Fazilka",
+    "lat": 30.02303,
+    "lng": 74.08123,
+    "status": "Functional"
+  },
+  {
+    "id": 132,
+    "name": "PHC Pani Wala Mahala",
+    "district": "Fazilka",
+    "lat": 30.403648,
+    "lng": 74.027962,
+    "status": "Functional"
+  },
+  {
+    "id": 133,
+    "name": "PHC Killian Wali",
+    "district": "Fazilka",
+    "lat": 30.14178,
+    "lng": 74.01133,
+    "status": "Functional"
+  },
+  {
+    "id": 134,
+    "name": "PHC Kaller Khera",
+    "district": "Fazilka",
+    "lat": 30.0389104567194,
+    "lng": 73.9538531876652,
+    "status": "Functional"
+  },
+  {
+    "id": 135,
+    "name": "PHC Kheowali Dhab",
+    "district": "Fazilka",
+    "lat": 30.24879,
+    "lng": 74.01512,
+    "status": "Functional"
+  },
+  {
+    "id": 136,
+    "name": "PHC Jandwala Bhimeshah",
+    "district": "Fazilka",
+    "lat": 30.403648,
+    "lng": 74.027962,
+    "status": "Functional"
+  },
+  {
+    "id": 137,
+    "name": "PHC Laduka Mandi",
+    "district": "Fazilka",
+    "lat": 30.6874503,
+    "lng": 74.3172297,
+    "status": "Functional"
+  },
+  {
+    "id": 138,
+    "name": "PHC Ghubaya",
+    "district": "Fazilka",
+    "lat": 30.56156,
+    "lng": 74.14015,
+    "status": "Functional"
+  },
+  {
+    "id": 139,
+    "name": "UPHC Guru Kirpa Colony",
+    "district": "Fazilka",
+    "lat": 30.403648,
+    "lng": 74.027962,
+    "status": "Functional"
+  },
+  {
+    "id": 140,
+    "name": "UPHC Id Gah Basti",
+    "district": "Fazilka",
+    "lat": 30.403648,
+    "lng": 74.027962,
+    "status": "Functional"
+  },
+  {
+    "id": 141,
+    "name": "UPHC Dhobighat Colony",
+    "district": "Fazilka",
+    "lat": 30.04537,
+    "lng": 73.95427,
+    "status": "Functional"
+  },
+  {
+    "id": 142,
+    "name": "CH Fazilka",
+    "district": "Fazilka",
+    "lat": 30.407174,
+    "lng": 74.026271,
+    "status": "Functional"
+  },
+  {
+    "id": 143,
+    "name": "Drug Rehabilitation Centre, DH, Ferozpur",
+    "district": "Ferozpur",
+    "lat": 30.9522,
+    "lng": 74.608,
+    "status": "Functional"
+  },
+  {
+    "id": 144,
+    "name": "SDH Zira",
+    "district": "Ferozpur",
+    "lat": 30.96853,
+    "lng": 74.99106,
+    "status": "Functional"
+  },
+  {
+    "id": 145,
+    "name": "CHC Mamdot",
+    "district": "Ferozpur",
+    "lat": 30.8697,
+    "lng": 74.4205,
+    "status": "Functional"
+  },
+  {
+    "id": 146,
+    "name": "CHC Guru Har Sahai",
+    "district": "Ferozpur",
+    "lat": 30.7142872,
+    "lng": 74.4023497,
+    "status": "Functional"
+  },
+  {
+    "id": 147,
+    "name": "CHC Makhu",
+    "district": "Ferozpur",
+    "lat": 31.107153,
+    "lng": 74.976402,
+    "status": "Functional"
+  },
+  {
+    "id": 148,
+    "name": "CHC Ferozshah",
+    "district": "Ferozpur",
+    "lat": 30.8777825,
+    "lng": 74.7855,
+    "status": "Functional"
+  },
+  {
+    "id": 149,
+    "name": "Central Jail, Ferozpur",
+    "district": "Ferozpur",
+    "lat": 30.9509764790594,
+    "lng": 74.6154791728957,
+    "status": "Functional"
+  },
+  {
+    "id": 150,
+    "name": "PHC Malanwala",
+    "district": "Ferozpur",
+    "lat": 31.050695,
+    "lng": 74.817877,
+    "status": "Functional"
+  },
+  {
+    "id": 151,
+    "name": "PHC Nur Pur Sethan",
+    "district": "Ferozpur",
+    "lat": 30.87622,
+    "lng": 74.63726,
+    "status": "Functional"
+  },
+  {
+    "id": 152,
+    "name": "PHC Arifke",
+    "district": "Ferozpur",
+    "lat": 31.03999,
+    "lng": 74.7425,
+    "status": "Functional"
+  },
+  {
+    "id": 153,
+    "name": "PHC Lakho Ke Behram",
+    "district": "Ferozpur",
+    "lat": 30.83392,
+    "lng": 74.45792,
+    "status": "Functional"
+  },
+  {
+    "id": 154,
+    "name": "PHC Lallae",
+    "district": "Ferozpur",
+    "lat": 30.84203625,
+    "lng": 74.89549532532,
+    "status": "Functional"
+  },
+  {
+    "id": 155,
+    "name": "PHC Mudki",
+    "district": "Ferozpur",
+    "lat": 30.77583,
+    "lng": 74.88225,
+    "status": "Functional"
+  },
+  {
+    "id": 156,
+    "name": "PHC Sohan Garh",
+    "district": "Ferozpur",
+    "lat": 30.6111403,
+    "lng": 74.3867852,
+    "status": "Functional"
+  },
+  {
+    "id": 157,
+    "name": "PHC Jiwa Arain",
+    "district": "Ferozpur",
+    "lat": 30.6931152,
+    "lng": 74.3228857,
+    "status": "Functional"
+  },
+  {
+    "id": 158,
+    "name": "PHC Kassoana",
+    "district": "Ferozpur",
+    "lat": 30.95004,
+    "lng": 74.88986,
+    "status": "Functional"
+  },
+  {
+    "id": 159,
+    "name": "PHC Wakilan Wala",
+    "district": "Ferozpur",
+    "lat": 30.590607,
+    "lng": 75.280771,
+    "status": "Functional"
+  },
+  {
+    "id": 160,
+    "name": "UPHC Cantt",
+    "district": "Ferozpur",
+    "lat": 30.9234214038953,
+    "lng": 74.6191653074269,
+    "status": "Functional"
+  },
+  {
+    "id": 161,
+    "name": "UPHC City 1",
+    "district": "Ferozpur",
+    "lat": 30.9384675,
+    "lng": 74.6236711,
+    "status": "Functional"
+  },
+  {
+    "id": 162,
+    "name": "Drug Rehabilitation Centre, Vill. Jeevanwal Babri, Gurdaspur",
+    "district": "Gurdaspur",
+    "lat": 32.01675,
+    "lng": 75.38445,
+    "status": "Functional"
+  },
+  {
+    "id": 163,
+    "name": "Central Jail, Gurdaspur",
+    "district": "Gurdaspur",
+    "lat": 32.0480010996719,
+    "lng": 75.4057428242709,
+    "status": "Functional"
+  },
+  {
+    "id": 164,
+    "name": "SDH Batala",
+    "district": "Gurdaspur",
+    "lat": 31.8205869263857,
+    "lng": 75.2005888671267,
+    "status": "Functional"
+  },
+  {
+    "id": 165,
+    "name": "CHC Singowal",
+    "district": "Gurdaspur",
+    "lat": 32.12170946,
+    "lng": 75.47832107,
+    "status": "Functional"
+  },
+  {
+    "id": 166,
+    "name": "CHC Bham",
+    "district": "Gurdaspur",
+    "lat": 31.780879,
+    "lng": 75.451318,
+    "status": "Functional"
+  },
+  {
+    "id": 167,
+    "name": "CHC Ghuman",
+    "district": "Gurdaspur",
+    "lat": 31.690526,
+    "lng": 75.376256,
+    "status": "Functional"
+  },
+  {
+    "id": 168,
+    "name": "CHC Qadian",
+    "district": "Gurdaspur",
+    "lat": 31.811791,
+    "lng": 75.369341,
+    "status": "Functional"
+  },
+  {
+    "id": 169,
+    "name": "CHC Dera Baba Nanak",
+    "district": "Gurdaspur",
+    "lat": 32.0338283879178,
+    "lng": 75.028168766598,
+    "status": "Functional"
+  },
+  {
+    "id": 170,
+    "name": "CHC Fatehgarh Churian",
+    "district": "Gurdaspur",
+    "lat": 31.8634,
+    "lng": 74.9505,
+    "status": "Functional"
+  },
+  {
+    "id": 171,
+    "name": "CHC Kalanaur",
+    "district": "Gurdaspur",
+    "lat": 32.0121653145617,
+    "lng": 75.1466131210377,
+    "status": "Functional"
+  },
+  {
+    "id": 172,
+    "name": "CHC Kahnuwan",
+    "district": "Gurdaspur",
+    "lat": 31.90658,
+    "lng": 75.446115,
+    "status": "Functional"
+  },
+  {
+    "id": 173,
+    "name": "CHC Bhaini Mia Khan",
+    "district": "Gurdaspur",
+    "lat": 31.880579,
+    "lng": 75.510449,
+    "status": "Functional"
+  },
+  {
+    "id": 174,
+    "name": "CHC Naushera Majha Singh",
+    "district": "Gurdaspur",
+    "lat": 31.9007566790646,
+    "lng": 75.2840504338726,
+    "status": "Functional"
+  },
+  {
+    "id": 175,
+    "name": "CHC Dhariwal",
+    "district": "Gurdaspur",
+    "lat": 31.9537,
+    "lng": 75.3151,
+    "status": "Functional"
+  },
+  {
+    "id": 176,
+    "name": "CHC Kot Santokh Rai",
+    "district": "Gurdaspur",
+    "lat": 31.9517,
+    "lng": 75.2965,
+    "status": "Functional"
+  },
+  {
+    "id": 177,
+    "name": "CHC Purana Shalla",
+    "district": "Gurdaspur",
+    "lat": 32.041943,
+    "lng": 75.405334,
+    "status": "Functional"
+  },
+  {
+    "id": 178,
+    "name": "PHC Wadala Bangar",
+    "district": "Gurdaspur",
+    "lat": 31.95495,
+    "lng": 75.15993,
+    "status": "Functional"
+  },
+  {
+    "id": 180,
+    "name": "PHC Sathoha",
+    "district": "Gurdaspur",
+    "lat": 31.8688613833257,
+    "lng": 75.2855576710859,
+    "status": "Functional"
+  },
+  {
+    "id": 181,
+    "name": "PHC Ranjit Bagh",
+    "district": "Gurdaspur",
+    "lat": 31.1724,
+    "lng": 75.14993,
+    "status": "Functional"
+  },
+  {
+    "id": 182,
+    "name": "PHC Behrampur",
+    "district": "Gurdaspur",
+    "lat": 32.100905,
+    "lng": 75.37115,
+    "status": "Functional"
+  },
+  {
+    "id": 183,
+    "name": "PHC Marara",
+    "district": "Gurdaspur",
+    "lat": 31.71287,
+    "lng": 75.04385,
+    "status": "Functional"
+  },
+  {
+    "id": 184,
+    "name": "PHC Jharauli",
+    "district": "Gurdaspur",
+    "lat": 32.1169532,
+    "lng": 75.5480421,
+    "status": "Functional"
+  },
+  {
+    "id": 185,
+    "name": "PHC Dorangla",
+    "district": "Gurdaspur",
+    "lat": 32.0988503,
+    "lng": 75.306968,
+    "status": "Functional"
+  },
+  {
+    "id": 186,
+    "name": "PHC Jaura Chittron",
+    "district": "Gurdaspur",
+    "lat": 32.01703,
+    "lng": 75.29331,
+    "status": "Functional"
+  },
+  {
+    "id": 187,
+    "name": "PHC Bhular",
+    "district": "Gurdaspur",
+    "lat": 31.8588498,
+    "lng": 75.2164411,
+    "status": "Functional"
+  },
+  {
+    "id": 188,
+    "name": "PHC Panj Garaian",
+    "district": "Gurdaspur",
+    "lat": 31.774042,
+    "lng": 75.282257,
+    "status": "Functional"
+  },
+  {
+    "id": 189,
+    "name": "PHC Wadala Garanthian",
+    "district": "Gurdaspur",
+    "lat": 31.818792,
+    "lng": 75.293167,
+    "status": "Functional"
+  },
+  {
+    "id": 191,
+    "name": "UPHC 1/ UPHC Batala",
+    "district": "Gurdaspur",
+    "lat": 31.8285809316832,
+    "lng": 75.211842953096,
+    "status": "Functional"
+  },
+  {
+    "id": 192,
+    "name": "UPHC Chander Nagar",
+    "district": "Gurdaspur",
+    "lat": 31.82628,
+    "lng": 75.20278,
+    "status": "Functional"
+  },
+  {
+    "id": 193,
+    "name": "UPHC Maan Kaur Singh",
+    "district": "Gurdaspur",
+    "lat": 32.04078,
+    "lng": 75.42798,
+    "status": "Functional"
+  },
+  {
+    "id": 194,
+    "name": "Rangar Nangal",
+    "district": "Gurdaspur",
+    "lat": 31.719643,
+    "lng": 75.242463,
+    "status": "Functional"
+  },
+  {
+    "id": 195,
+    "name": "PHC Gill Manj",
+    "district": "Gurdaspur",
+    "lat": 31.882582,
+    "lng": 75.375481,
+    "status": "Functional"
+  },
+  {
+    "id": 196,
+    "name": "PHC Shri Hargobind Pur",
+    "district": "Gurdaspur",
+    "lat": 31.682137,
+    "lng": 75.472548,
+    "status": "Functional"
+  },
+  {
+    "id": 197,
+    "name": "DDRC, Mohalla Fatehgarh, Hoshiarpur",
+    "district": "Hoshiarpur",
+    "lat": 31.52209,
+    "lng": 75.9122,
+    "status": "Functional"
+  },
+  {
+    "id": 198,
+    "name": "Central Jail, Hoshiarpur",
+    "district": "Hoshiarpur",
+    "lat": 31.527355,
+    "lng": 75.913673,
+    "status": "Functional"
+  },
+  {
+    "id": 199,
+    "name": "SDH Garhshankar",
+    "district": "Hoshiarpur",
+    "lat": 31.21344,
+    "lng": 76.15054,
+    "status": "Functional"
+  },
+  {
+    "id": 200,
+    "name": "SDH Mukerian",
+    "district": "Hoshiarpur",
+    "lat": 31.9502,
+    "lng": 75.6133,
+    "status": "Functional"
+  },
+  {
+    "id": 201,
+    "name": "SDH Dasuya",
+    "district": "Hoshiarpur",
+    "lat": 31.8076,
+    "lng": 75.6663,
+    "status": "Functional"
+  },
+  {
+    "id": 202,
+    "name": "CHC Mahalpur",
+    "district": "Hoshiarpur",
+    "lat": 31.363,
+    "lng": 76.038,
+    "status": "Functional"
+  },
+  {
+    "id": 203,
+    "name": "CHC Tanda",
+    "district": "Hoshiarpur",
+    "lat": 31.6758,
+    "lng": 75.6349,
+    "status": "Functional"
+  },
+  {
+    "id": 204,
+    "name": "CHC Sham Churasi",
+    "district": "Hoshiarpur",
+    "lat": 31.4997,
+    "lng": 75.7494,
+    "status": "Functional"
+  },
+  {
+    "id": 205,
+    "name": "CHC Hazipur",
+    "district": "Hoshiarpur",
+    "lat": 31.98,
+    "lng": 75.76,
+    "status": "Functional"
+  },
+  {
+    "id": 206,
+    "name": "CHC Budhabar",
+    "district": "Hoshiarpur",
+    "lat": 31.95414,
+    "lng": 75.7535,
+    "status": "Functional"
+  },
+  {
+    "id": 207,
+    "name": "CHC Bhunga",
+    "district": "Hoshiarpur",
+    "lat": 31.52735,
+    "lng": 75.91367,
+    "status": "Functional"
+  },
+  {
+    "id": 208,
+    "name": "CHC Harta Badla",
+    "district": "Hoshiarpur",
+    "lat": 31.527355,
+    "lng": 75.913673,
+    "status": "Functional"
+  },
+  {
+    "id": 209,
+    "name": "CHC Bhol Kalota",
+    "district": "Hoshiarpur",
+    "lat": 31.8851,
+    "lng": 75.92469,
+    "status": "Functional"
+  },
+  {
+    "id": 210,
+    "name": "CHC Kamahi Devi",
+    "district": "Hoshiarpur",
+    "lat": 31.57325,
+    "lng": 75.8915,
+    "status": "Functional"
+  },
+  {
+    "id": 211,
+    "name": "CHC Mand Mandher",
+    "district": "Hoshiarpur",
+    "lat": 31.77555,
+    "lng": 75.7376,
+    "status": "Functional"
+  },
+  {
+    "id": 212,
+    "name": "CHC Hariana",
+    "district": "Hoshiarpur",
+    "lat": 31.6364,
+    "lng": 75.8419,
+    "status": "Functional"
+  },
+  {
+    "id": 213,
+    "name": "CHC Binewal",
+    "district": "Hoshiarpur",
+    "lat": 31.2815,
+    "lng": 76.2596,
+    "status": "Functional"
+  },
+  {
+    "id": 214,
+    "name": "PHC Khunkhun Kalan",
+    "district": "Hoshiarpur",
+    "lat": 31.7428716061102,
+    "lng": 75.6775832377476,
+    "status": "Functional"
+  },
+  {
+    "id": 215,
+    "name": "PHC Bhangela",
+    "district": "Hoshiarpur",
+    "lat": 32.0169205383896,
+    "lng": 75.6135524751151,
+    "status": "Functional"
+  },
+  {
+    "id": 216,
+    "name": "PHC Phuglana",
+    "district": "Hoshiarpur",
+    "lat": 31.3897939923385,
+    "lng": 75.8325737474319,
+    "status": "Functional"
+  },
+  {
+    "id": 217,
+    "name": "PHC Paldi",
+    "district": "Hoshiarpur",
+    "lat": 31.3274341908838,
+    "lng": 75.9970176039466,
+    "status": "Functional"
+  },
+  {
+    "id": 218,
+    "name": "PHC Jejon",
+    "district": "Hoshiarpur",
+    "lat": 31.3478495564061,
+    "lng": 76.146296564528,
+    "status": "Functional"
+  },
+  {
+    "id": 219,
+    "name": "PHC  Possi",
+    "district": "Hoshiarpur",
+    "lat": 31.2673754216712,
+    "lng": 76.0518865772561,
+    "status": "Functional"
+  },
+  {
+    "id": 220,
+    "name": "PHC  Rampura Bilron",
+    "district": "Hoshiarpur",
+    "lat": 31.2716841187163,
+    "lng": 76.1329386985791,
+    "status": "Functional"
+  },
+  {
+    "id": 221,
+    "name": "PHC  Binjon",
+    "district": "Hoshiarpur",
+    "lat": 31.2712275913228,
+    "lng": 76.0014122124025,
+    "status": "Functional"
+  },
+  {
+    "id": 222,
+    "name": "PHC Janauri",
+    "district": "Hoshiarpur",
+    "lat": 31.7134899438757,
+    "lng": 75.8935579017475,
+    "status": "Functional"
+  },
+  {
+    "id": 223,
+    "name": "PHC Badla",
+    "district": "Hoshiarpur",
+    "lat": 31.4012975001995,
+    "lng": 75.9101302438667,
+    "status": "Functional"
+  },
+  {
+    "id": 224,
+    "name": "UPHC Islamabad",
+    "district": "Hoshiarpur",
+    "lat": 31.51687,
+    "lng": 75.9306,
+    "status": "Functional"
+  },
+  {
+    "id": 226,
+    "name": "PHC Chaukowal",
+    "district": "Hoshiarpur",
+    "lat": 31.550774603218,
+    "lng": 75.7863510070495,
+    "status": "Functional"
+  },
+  {
+    "id": 227,
+    "name": "Drug Rehabilitation Centre, Village Shekha, Jalandhar",
+    "district": "Jalandhar",
+    "lat": 31.3566214044894,
+    "lng": 75.614918737249,
+    "status": "Functional"
+  },
+  {
+    "id": 228,
+    "name": "SDH Phillaur",
+    "district": "Jalandhar",
+    "lat": 31.0217464720565,
+    "lng": 75.7900553121313,
+    "status": "Functional"
+  },
+  {
+    "id": 229,
+    "name": "SDH Nakodar",
+    "district": "Jalandhar",
+    "lat": 31.1281533188056,
+    "lng": 75.4760957023439,
+    "status": "Functional"
+  },
+  {
+    "id": 230,
+    "name": "CHC Adampur",
+    "district": "Jalandhar",
+    "lat": 31.4302496314307,
+    "lng": 75.7156300526201,
+    "status": "Functional"
+  },
+  {
+    "id": 231,
+    "name": "CHC Apra",
+    "district": "Jalandhar",
+    "lat": 31.0867725589649,
+    "lng": 75.87829394282,
+    "status": "Functional"
+  },
+  {
+    "id": 232,
+    "name": "CHC Bara Pind",
+    "district": "Jalandhar",
+    "lat": 31.0882268430749,
+    "lng": 75.885878422096,
+    "status": "Functional"
+  },
+  {
+    "id": 233,
+    "name": "CHC Noor Mahal",
+    "district": "Jalandhar",
+    "lat": 31.1034213758255,
+    "lng": 75.5935343176179,
+    "status": "Functional"
+  },
+  {
+    "id": 234,
+    "name": "CHC Bundala",
+    "district": "Jalandhar",
+    "lat": 31.1424288619997,
+    "lng": 75.6635820888518,
+    "status": "Functional"
+  },
+  {
+    "id": 235,
+    "name": "CHC Kala Bakra",
+    "district": "Jalandhar",
+    "lat": 31.4766222773387,
+    "lng": 75.6297449042048,
+    "status": "Functional"
+  },
+  {
+    "id": 236,
+    "name": "CHC Kartarpur",
+    "district": "Jalandhar",
+    "lat": 31.263365,
+    "lng": 75.295449,
+    "status": "Functional"
+  },
+  {
+    "id": 237,
+    "name": "CHC Shankar",
+    "district": "Jalandhar",
+    "lat": 31.1497144555667,
+    "lng": 75.5345915055413,
+    "status": "Functional"
+  },
+  {
+    "id": 238,
+    "name": "CHC Lohian",
+    "district": "Jalandhar",
+    "lat": 31.1570047500116,
+    "lng": 75.2129244652786,
+    "status": "Functional"
+  },
+  {
+    "id": 239,
+    "name": "CHC Shahkot",
+    "district": "Jalandhar",
+    "lat": 31.0811281459713,
+    "lng": 75.3365674864636,
+    "status": "Functional"
+  },
+  {
+    "id": 240,
+    "name": "CHC PAP",
+    "district": "Jalandhar",
+    "lat": 31.3118637673291,
+    "lng": 75.6177984348146,
+    "status": "Non Functional"
+  },
+  {
+    "id": 241,
+    "name": "CHC Basti Gunjan",
+    "district": "Jalandhar",
+    "lat": 31.3211501193868,
+    "lng": 75.5520277652387,
+    "status": "Functional"
+  },
+  {
+    "id": 242,
+    "name": "DH Jalandhar",
+    "district": "Jalandhar",
+    "lat": 31.326343292509,
+    "lng": 75.5730448967966,
+    "status": "Functional"
+  },
+  {
+    "id": 243,
+    "name": "PHC Buttran",
+    "district": "Jalandhar",
+    "lat": 31.5474691838463,
+    "lng": 75.5813782329726,
+    "status": "Non Functional"
+  },
+  {
+    "id": 245,
+    "name": "PHC Chitti",
+    "district": "Jalandhar",
+    "lat": 31.2361531116764,
+    "lng": 75.4771822961261,
+    "status": "Functional"
+  },
+  {
+    "id": 246,
+    "name": "PHC Dosanjh Kalan",
+    "district": "Jalandhar",
+    "lat": 31.1662677205264,
+    "lng": 75.8392657752907,
+    "status": "Non Functional"
+  },
+  {
+    "id": 247,
+    "name": "PHC Bilga ",
+    "district": "Jalandhar",
+    "lat": 31.0565726909012,
+    "lng": 75.6581552692916,
+    "status": "Functional"
+  },
+  {
+    "id": 248,
+    "name": "PHC Kot Badal Khan  ",
+    "district": "Jalandhar",
+    "lat": 31.0206460698772,
+    "lng": 75.6205851042946,
+    "status": "Functional"
+  },
+  {
+    "id": 249,
+    "name": "PHC Jamsher Khas",
+    "district": "Jalandhar",
+    "lat": 31.234394270257,
+    "lng": 75.6219726292664,
+    "status": "Functional"
+  },
+  {
+    "id": 250,
+    "name": "PHC Jandiala",
+    "district": "Jalandhar",
+    "lat": 31.2344676600266,
+    "lng": 75.6225841728913,
+    "status": "Functional"
+  },
+  {
+    "id": 251,
+    "name": "PHC Mehatpur",
+    "district": "Jalandhar",
+    "lat": 31.0457656623953,
+    "lng": 75.4765221213137,
+    "status": "Functional"
+  },
+  {
+    "id": 254,
+    "name": "UPHC Dhanowali",
+    "district": "Jalandhar",
+    "lat": 31.3051596384251,
+    "lng": 75.6549213431279,
+    "status": "Non Functional"
+  },
+  {
+    "id": 255,
+    "name": "UPHC Garha",
+    "district": "Jalandhar",
+    "lat": 31.2966711279482,
+    "lng": 75.5987624176234,
+    "status": "Functional"
+  },
+  {
+    "id": 256,
+    "name": "UPHC Kazi Mandi",
+    "district": "Jalandhar",
+    "lat": 31.33461,
+    "lng": 75.5879,
+    "status": "Functional"
+  },
+  {
+    "id": 257,
+    "name": "UPHC Maqsudan",
+    "district": "Jalandhar",
+    "lat": 31.36011,
+    "lng": 75.55335,
+    "status": "Functional"
+  },
+  {
+    "id": 258,
+    "name": "UPHC Basti Bawa Khel",
+    "district": "Jalandhar",
+    "lat": 31.3406451776734,
+    "lng": 75.5475493114723,
+    "status": "Functional"
+  },
+  {
+    "id": 259,
+    "name": "UPHC Basti Danish Manda",
+    "district": "Jalandhar",
+    "lat": 31.31861,
+    "lng": 75.54248,
+    "status": "Functional"
+  },
+  {
+    "id": 260,
+    "name": "UPHC Basti Nao",
+    "district": "Jalandhar",
+    "lat": 31.3204779123501,
+    "lng": 75.5488371758249,
+    "status": "Non Functional"
+  },
+  {
+    "id": 261,
+    "name": "UPHC Bhargo Camp",
+    "district": "Jalandhar",
+    "lat": 31.31371,
+    "lng": 75.56552,
+    "status": "Functional"
+  },
+  {
+    "id": 262,
+    "name": "PHC Rupewali",
+    "district": "Jalandhar",
+    "lat": 31.1496381199512,
+    "lng": 75.3053636848952,
+    "status": "Non Functional"
+  },
+  {
+    "id": 263,
+    "name": "UCHC Khurla Kingra",
+    "district": "Jalandhar",
+    "lat": 31.2949740053647,
+    "lng": 75.5547457270127,
+    "status": "Functional"
+  },
+  {
+    "id": 264,
+    "name": "UCHC Dada Colony",
+    "district": "Jalandhar",
+    "lat": 31.3554902573969,
+    "lng": 75.5757772703394,
+    "status": "Functional"
+  },
+  {
+    "id": 265,
+    "name": "Drug Rehabilitation Centre, DH Kapurthala",
+    "district": "Kapurthala",
+    "lat": 31.3757623836101,
+    "lng": 75.3820129057133,
+    "status": "Functional"
+  },
+  {
+    "id": 266,
+    "name": "Central Jail, Kapurthala",
+    "district": "Kapurthala",
+    "lat": 31.4360606938518,
+    "lng": 75.3433111819128,
+    "status": "Functional"
+  },
+  {
+    "id": 267,
+    "name": "SDH Phagwara",
+    "district": "Kapurthala",
+    "lat": 31.2306358469839,
+    "lng": 75.7637814840941,
+    "status": "Functional"
+  },
+  {
+    "id": 268,
+    "name": "SDH Sultanpur Lodhi",
+    "district": "Kapurthala",
+    "lat": 31.2182223362392,
+    "lng": 75.1924602026588,
+    "status": "Functional"
+  },
+  {
+    "id": 269,
+    "name": "SDH Bholath",
+    "district": "Kapurthala",
+    "lat": 31.5397415821785,
+    "lng": 75.5075198346573,
+    "status": "Functional"
+  },
+  {
+    "id": 270,
+    "name": "PHC Kala Sanghia",
+    "district": "Kapurthala",
+    "lat": 31.2616977873608,
+    "lng": 75.4451868653978,
+    "status": "Functional"
+  },
+  {
+    "id": 271,
+    "name": "CHC Tibba",
+    "district": "Kapurthala",
+    "lat": 31.3105650331134,
+    "lng": 75.2139365435618,
+    "status": "Functional"
+  },
+  {
+    "id": 272,
+    "name": "CHC Fattu Dhinga",
+    "district": "Kapurthala",
+    "lat": 31.3737482000692,
+    "lng": 75.2257261070409,
+    "status": "Functional"
+  },
+  {
+    "id": 273,
+    "name": "CHC Panchhat",
+    "district": "Kapurthala",
+    "lat": 31.3354778606504,
+    "lng": 75.8651256242357,
+    "status": "Functional"
+  },
+  {
+    "id": 274,
+    "name": "CHC Begowal",
+    "district": "Kapurthala",
+    "lat": 31.6095893617508,
+    "lng": 75.5163400126098,
+    "status": "Functional"
+  },
+  {
+    "id": 276,
+    "name": "PHC Dhilwan",
+    "district": "Kapurthala",
+    "lat": 31.51226,
+    "lng": 75.34484,
+    "status": "Functional"
+  },
+  {
+    "id": 278,
+    "name": "UPHC Araika Mohalla",
+    "district": "Kapurthala",
+    "lat": 31.3786228048374,
+    "lng": 75.3728695244118,
+    "status": "Functional"
+  },
+  {
+    "id": 279,
+    "name": "UPHC Hadiabad",
+    "district": "Kapurthala",
+    "lat": 31.2205944965675,
+    "lng": 75.7464032240791,
+    "status": "Functional"
+  },
+  {
+    "id": 280,
+    "name": "Central Jail, Ludhiana",
+    "district": "Ludhiana",
+    "lat": 30.91663,
+    "lng": 75.90951,
+    "status": "Functional"
+  },
+  {
+    "id": 281,
+    "name": "SDH Samrala",
+    "district": "Ludhiana",
+    "lat": 30.839851,
+    "lng": 76.186875,
+    "status": "Functional"
+  },
+  {
+    "id": 282,
+    "name": "SDH Khanna",
+    "district": "Ludhiana",
+    "lat": 30.703232,
+    "lng": 76.223076,
+    "status": "Functional"
+  },
+  {
+    "id": 283,
+    "name": "SDH Raikot",
+    "district": "Ludhiana",
+    "lat": 30.65,
+    "lng": 75.6,
+    "status": "Functional"
+  },
+  {
+    "id": 284,
+    "name": "Drug Rehabilitation Centre, Jagraon, Ludhiana",
+    "district": "Ludhiana",
+    "lat": 30.797416,
+    "lng": 75.475386,
+    "status": "Functional"
+  },
+  {
+    "id": 286,
+    "name": "CHC Hathur",
+    "district": "Ludhiana",
+    "lat": 30.6007,
+    "lng": 75.4295,
+    "status": "Functional"
+  },
+  {
+    "id": 287,
+    "name": "CHC Kum Kalan",
+    "district": "Ludhiana",
+    "lat": 30.89107,
+    "lng": 75.87729,
+    "status": "Functional"
+  },
+  {
+    "id": 288,
+    "name": "CHC Machhiwara",
+    "district": "Ludhiana",
+    "lat": 30.9126912569558,
+    "lng": 76.1959770607821,
+    "status": "Functional"
+  },
+  {
+    "id": 289,
+    "name": "CHC Dehlon",
+    "district": "Ludhiana",
+    "lat": 30.9004,
+    "lng": 75.8513,
+    "status": "Functional"
+  },
+  {
+    "id": 290,
+    "name": "CHC Malaud",
+    "district": "Ludhiana",
+    "lat": 30.634831,
+    "lng": 75.937013,
+    "status": "Functional"
+  },
+  {
+    "id": 291,
+    "name": "CHC Manupur",
+    "district": "Ludhiana",
+    "lat": 30.7553217760686,
+    "lng": 76.270553680797,
+    "status": "Functional"
+  },
+  {
+    "id": 292,
+    "name": "CHC Pakhowal",
+    "district": "Ludhiana",
+    "lat": 30.714176,
+    "lng": 75.71333,
+    "status": "Functional"
+  },
+  {
+    "id": 293,
+    "name": "CHC Payal",
+    "district": "Ludhiana",
+    "lat": 30.724362063744,
+    "lng": 76.0620392911403,
+    "status": "Functional"
+  },
+  {
+    "id": 294,
+    "name": "CHC Sahnewal",
+    "district": "Ludhiana",
+    "lat": 30.840752062326,
+    "lng": 75.9794480818837,
+    "status": "Functional"
+  },
+  {
+    "id": 295,
+    "name": "CHC Sidhwan Bet",
+    "district": "Ludhiana",
+    "lat": 30.9295,
+    "lng": 75.4723,
+    "status": "Functional"
+  },
+  {
+    "id": 296,
+    "name": "DH Ludhiana",
+    "district": "Ludhiana",
+    "lat": 30.9065513481678,
+    "lng": 75.8597252721,
+    "status": "Functional"
+  },
+  {
+    "id": 297,
+    "name": "PHC Rampur/Rampur Dhoraha",
+    "district": "Ludhiana",
+    "lat": 30.8187775893513,
+    "lng": 76.0502884075177,
+    "status": "Functional"
+  },
+  {
+    "id": 298,
+    "name": "PHC Mandiala Kalan",
+    "district": "Ludhiana",
+    "lat": 30.896429463701,
+    "lng": 75.9312236309106,
+    "status": "Non Functional"
+  },
+  {
+    "id": 299,
+    "name": "PHC Katani Kalan",
+    "district": "Ludhiana",
+    "lat": 30.849131,
+    "lng": 76.081116,
+    "status": "Functional"
+  },
+  {
+    "id": 300,
+    "name": "PHC Ghwadi",
+    "district": "Ludhiana",
+    "lat": 30.78282,
+    "lng": 75.89448,
+    "status": "Functional"
+  },
+  {
+    "id": 301,
+    "name": "PHC Kalakh",
+    "district": "Ludhiana",
+    "lat": 30.7159230765087,
+    "lng": 75.8232095639723,
+    "status": "Functional"
+  },
+  {
+    "id": 303,
+    "name": "PHC Talwandi Kalan",
+    "district": "Ludhiana",
+    "lat": 30.8511331750561,
+    "lng": 75.5912535795277,
+    "status": "Functional"
+  },
+  {
+    "id": 304,
+    "name": "PHC Sabadi Kalan",
+    "district": "Ludhiana",
+    "lat": 30.8678,
+    "lng": 75.5844,
+    "status": "Functional"
+  },
+  {
+    "id": 305,
+    "name": "PHC Mohi",
+    "district": "Ludhiana",
+    "lat": 30.804729,
+    "lng": 75.683273,
+    "status": "Functional"
+  },
+  {
+    "id": 306,
+    "name": "PHC Bhanohar",
+    "district": "Ludhiana",
+    "lat": 30.8488987,
+    "lng": 75.7062077,
+    "status": "Non Functional"
+  },
+  {
+    "id": 307,
+    "name": "PHC Mullanpur",
+    "district": "Ludhiana",
+    "lat": 30.8464119121119,
+    "lng": 75.6741873595902,
+    "status": "Functional"
+  },
+  {
+    "id": 308,
+    "name": "PHC Ladowal",
+    "district": "Ludhiana",
+    "lat": 30.9794,
+    "lng": 75.7926,
+    "status": "Functional"
+  },
+  {
+    "id": 309,
+    "name": "PHC Chowkiman",
+    "district": "Ludhiana",
+    "lat": 30.8133349381548,
+    "lng": 75.5634617616478,
+    "status": "Functional"
+  },
+  {
+    "id": 310,
+    "name": "PHC Mehdoodan",
+    "district": "Ludhiana",
+    "lat": 30.80648,
+    "lng": 76.09553,
+    "status": "Functional"
+  },
+  {
+    "id": 311,
+    "name": "PHC Manuke",
+    "district": "Ludhiana",
+    "lat": 30.67142,
+    "lng": 75.45901,
+    "status": "Functional"
+  },
+  {
+    "id": 312,
+    "name": "PHC KAUNKEKALAN",
+    "district": "Ludhiana",
+    "lat": 30.7759887976237,
+    "lng": 75.3559058547511,
+    "status": "Unknown"
+  },
+  {
+    "id": 313,
+    "name": "UPHC Jagraon",
+    "district": "Ludhiana",
+    "lat": 30.8123060792036,
+    "lng": 75.4799339175281,
+    "status": "Non Functional"
+  },
+  {
+    "id": 314,
+    "name": "UPHC Lady Hospital",
+    "district": "Ludhiana",
+    "lat": 30.7075744709859,
+    "lng": 76.215664203365,
+    "status": "Non Functional"
+  },
+  {
+    "id": 315,
+    "name": "UPHC MT Khanna",
+    "district": "Ludhiana",
+    "lat": 30.704135682274,
+    "lng": 76.2300069715101,
+    "status": "Non Functional"
+  },
+  {
+    "id": 316,
+    "name": "UPHC Abdullapur Basti",
+    "district": "Ludhiana",
+    "lat": 30.8963,
+    "lng": 75.85235,
+    "status": "Functional"
+  },
+  {
+    "id": 317,
+    "name": "UPHC Dholewal",
+    "district": "Ludhiana",
+    "lat": 30.89191,
+    "lng": 75.86924,
+    "status": "Functional"
+  },
+  {
+    "id": 318,
+    "name": "UPHC Pratap Nagar Tibba Road",
+    "district": "Ludhiana",
+    "lat": 30.9501240806902,
+    "lng": 75.8494457974565,
+    "status": "Non Functional"
+  },
+  {
+    "id": 319,
+    "name": "UPHC Sabzi Mandi",
+    "district": "Ludhiana",
+    "lat": 30.94455,
+    "lng": 75.85035,
+    "status": "Functional"
+  },
+  {
+    "id": 320,
+    "name": "UPHC Salem Tabri",
+    "district": "Ludhiana",
+    "lat": 30.933508,
+    "lng": 75.83856,
+    "status": "Functional"
+  },
+  {
+    "id": 322,
+    "name": "UPHC Bhagwan Nagar",
+    "district": "Ludhiana",
+    "lat": 30.88915,
+    "lng": 75.87451,
+    "status": "Functional"
+  },
+  {
+    "id": 323,
+    "name": "UPHC Dugri",
+    "district": "Ludhiana",
+    "lat": 30.8724,
+    "lng": 75.8454,
+    "status": "Functional"
+  },
+  {
+    "id": 325,
+    "name": "UPHC Janta Nagar",
+    "district": "Ludhiana",
+    "lat": 30.87912,
+    "lng": 75.865805,
+    "status": "Non Functional"
+  },
+  {
+    "id": 326,
+    "name": "UPHC Model Town",
+    "district": "Ludhiana",
+    "lat": 30.8077,
+    "lng": 75.6756,
+    "status": "Functional"
+  },
+  {
+    "id": 327,
+    "name": "UPHC Muradpura",
+    "district": "Ludhiana",
+    "lat": 30.894383,
+    "lng": 75.8554402,
+    "status": "Functional"
+  },
+  {
+    "id": 328,
+    "name": "UPHC Sunet",
+    "district": "Ludhiana",
+    "lat": 30.88332,
+    "lng": 75.79813,
+    "status": "Non Functional"
+  },
+  {
+    "id": 329,
+    "name": "UPHC Subhash Nagar Chandarlok Colony ",
+    "district": "Ludhiana",
+    "lat": 30.934948,
+    "lng": 75.883985,
+    "status": "Functional"
+  },
+  {
+    "id": 330,
+    "name": "UPHC In existing Civil Surgeon Complex",
+    "district": "Ludhiana",
+    "lat": 30.8662,
+    "lng": 75.8599,
+    "status": "Functional"
+  },
+  {
+    "id": 331,
+    "name": "UPHC In samaj Bhalai Complex Simlapuri",
+    "district": "Ludhiana",
+    "lat": 30.8664677897145,
+    "lng": 75.8598704198623,
+    "status": "Functional"
+  },
+  {
+    "id": 332,
+    "name": "UPHC New CHC at Gyaspura (shifted from punjab Agro Complex near Jalandhar Byepass)",
+    "district": "Ludhiana",
+    "lat": 30.8594833003844,
+    "lng": 75.8910038459023,
+    "status": "Non Functional"
+  },
+  {
+    "id": 333,
+    "name": "UPHC Jawadhi Ludhiana",
+    "district": "Ludhiana",
+    "lat": 30.8833,
+    "lng": 75.83,
+    "status": "Functional"
+  },
+  {
+    "id": 334,
+    "name": "UCHC Vardhman",
+    "district": "Ludhiana",
+    "lat": 30.9112437,
+    "lng": 75.8910321,
+    "status": "Functional"
+  },
+  {
+    "id": 335,
+    "name": "Borstal District Jail Ludhiana",
+    "district": "Ludhiana",
+    "lat": 31.198668,
+    "lng": 76.154465,
+    "status": "Functional"
+  },
+  {
+    "id": 336,
+    "name": "Drug Rehabilitation Centre, Thuthian Wali Road, Mansa",
+    "district": "Mansa",
+    "lat": 30.00276,
+    "lng": 75.23218,
+    "status": "Functional"
+  },
+  {
+    "id": 337,
+    "name": "SDH Sardulgarh",
+    "district": "Mansa",
+    "lat": 29.691221,
+    "lng": 75.237988,
+    "status": "Functional"
+  },
+  {
+    "id": 338,
+    "name": "SDH Budhlada",
+    "district": "Mansa",
+    "lat": 29.925424,
+    "lng": 75.558022,
+    "status": "Functional"
+  },
+  {
+    "id": 339,
+    "name": "CHC Bhikhi",
+    "district": "Mansa",
+    "lat": 30.058009,
+    "lng": 75.538017,
+    "status": "Functional"
+  },
+  {
+    "id": 340,
+    "name": "CHC Bareta",
+    "district": "Mansa",
+    "lat": 29.861559,
+    "lng": 75.69495,
+    "status": "Functional"
+  },
+  {
+    "id": 341,
+    "name": "CHC Junir",
+    "district": "Mansa",
+    "lat": 29.806712,
+    "lng": 75.345212,
+    "status": "Functional"
+  },
+  {
+    "id": 342,
+    "name": "CHC Khiala Kalan",
+    "district": "Mansa",
+    "lat": 30.040152,
+    "lng": 75.431743,
+    "status": "Functional"
+  },
+  {
+    "id": 343,
+    "name": "District Jail Mansa",
+    "district": "Mansa",
+    "lat": 30.065678,
+    "lng": 75.404854,
+    "status": "Functional"
+  },
+  {
+    "id": 344,
+    "name": "PHC Nangal Kalan",
+    "district": "Mansa",
+    "lat": 29.925947,
+    "lng": 75.391614,
+    "status": "Functional"
+  },
+  {
+    "id": 345,
+    "name": "PHC Dhaipai",
+    "district": "Mansa",
+    "lat": 30.762092,
+    "lng": 75.714986,
+    "status": "Functional"
+  },
+  {
+    "id": 346,
+    "name": "PHC Joga",
+    "district": "Mansa",
+    "lat": 30.159352,
+    "lng": 75.420991,
+    "status": "Functional"
+  },
+  {
+    "id": 348,
+    "name": "PHC Boha",
+    "district": "Mansa",
+    "lat": 29.830445,
+    "lng": 75.526362,
+    "status": "Functional"
+  },
+  {
+    "id": 349,
+    "name": "PHC Birke Kalan",
+    "district": "Mansa",
+    "lat": 29.9950718437193,
+    "lng": 75.5922118972564,
+    "status": "Non Functional"
+  },
+  {
+    "id": 350,
+    "name": "PHC Kularian",
+    "district": "Mansa",
+    "lat": 29.802581,
+    "lng": 75.681039,
+    "status": "Functional"
+  },
+  {
+    "id": 351,
+    "name": "DDRC, Village Janer, Moga",
+    "district": "Moga",
+    "lat": 29.9856017827973,
+    "lng": 75.4027969814796,
+    "status": "Functional"
+  },
+  {
+    "id": 352,
+    "name": "CHC Dhudike",
+    "district": "Moga",
+    "lat": 30.775014,
+    "lng": 75.3527449,
+    "status": "Functional"
+  },
+  {
+    "id": 353,
+    "name": "CHC Nihal Singh Wala",
+    "district": "Moga",
+    "lat": 30.5930285,
+    "lng": 75.2791739,
+    "status": "Functional"
+  },
+  {
+    "id": 354,
+    "name": "CHC Kot Isse Khan",
+    "district": "Moga",
+    "lat": 30.9439332,
+    "lng": 75.14245,
+    "status": "Functional"
+  },
+  {
+    "id": 355,
+    "name": "CHC Bagha Purana",
+    "district": "Moga",
+    "lat": 30.6884,
+    "lng": 75.0853,
+    "status": "Functional"
+  },
+  {
+    "id": 356,
+    "name": "CHC Daroli Bhai",
+    "district": "Moga",
+    "lat": 30.807403,
+    "lng": 75.0457181,
+    "status": "Functional"
+  },
+  {
+    "id": 357,
+    "name": "CHC Badhani Kalan",
+    "district": "Moga",
+    "lat": 30.68715,
+    "lng": 75.3063,
+    "status": "Functional"
+  },
+  {
+    "id": 358,
+    "name": "PHC Khokri Kalan",
+    "district": "Moga",
+    "lat": 30.842055,
+    "lng": 75.331786,
+    "status": "Functional"
+  },
+  {
+    "id": 359,
+    "name": "PHC Patto Hira Singh",
+    "district": "Moga",
+    "lat": 30.5937,
+    "lng": 75.2392,
+    "status": "Functional"
+  },
+  {
+    "id": 360,
+    "name": "PHC PHC Fatehgarh Panj Toor",
+    "district": "Moga",
+    "lat": 31.053486,
+    "lng": 75.112793,
+    "status": "Functional"
+  },
+  {
+    "id": 361,
+    "name": "PHC Jalalabad East",
+    "district": "Moga",
+    "lat": 30.605830450504,
+    "lng": 74.2559921998268,
+    "status": "Functional"
+  },
+  {
+    "id": 362,
+    "name": "PHC Kishan Pur Kalan",
+    "district": "Moga",
+    "lat": 30.9282346540147,
+    "lng": 75.3501299040525,
+    "status": "Functional"
+  },
+  {
+    "id": 363,
+    "name": "PHC Thathi Bhai",
+    "district": "Moga",
+    "lat": 30.3583021,
+    "lng": 75.6469824,
+    "status": "Functional"
+  },
+  {
+    "id": 364,
+    "name": "PHC Daulat Pur Niwana",
+    "district": "Moga",
+    "lat": 30.876884,
+    "lng": 75.02555,
+    "status": "Functional"
+  },
+  {
+    "id": 365,
+    "name": "PHC Chand Niwana",
+    "district": "Moga",
+    "lat": 30.75585,
+    "lng": 75.0873956,
+    "status": "Functional"
+  },
+  {
+    "id": 366,
+    "name": "UPHC Bagiana Basti",
+    "district": "Moga",
+    "lat": 30.809231,
+    "lng": 75.156982,
+    "status": "Functional"
+  },
+  {
+    "id": 367,
+    "name": "UPHC Duneke",
+    "district": "Moga",
+    "lat": 30.8267363,
+    "lng": 75.1435936,
+    "status": "Functional"
+  },
+  {
+    "id": 368,
+    "name": "CH Moga",
+    "district": "Moga",
+    "lat": 30.811335,
+    "lng": 75.169579,
+    "status": "Functional"
+  },
+  {
+    "id": 369,
+    "name": "Drug Rehabilitation Centre, Muktsar",
+    "district": "Muktsar",
+    "lat": 30.46277,
+    "lng": 74.53521,
+    "status": "Functional"
+  },
+  {
+    "id": 370,
+    "name": "SDH Badal",
+    "district": "Muktsar",
+    "lat": 30.0761,
+    "lng": 74.6664,
+    "status": "Functional"
+  },
+  {
+    "id": 371,
+    "name": "Village Theri, SDH Malout",
+    "district": "Muktsar",
+    "lat": 30.18677,
+    "lng": 74.4956,
+    "status": "Functional"
+  },
+  {
+    "id": 372,
+    "name": "SDH Gidderbaha",
+    "district": "Muktsar",
+    "lat": 30.216209,
+    "lng": 74.646911,
+    "status": "Functional"
+  },
+  {
+    "id": 373,
+    "name": "CHC Sarawa Bhodla",
+    "district": "Muktsar",
+    "lat": 30.3,
+    "lng": 74.43,
+    "status": "Functional"
+  },
+  {
+    "id": 374,
+    "name": "CHC Chak Sherewala",
+    "district": "Muktsar",
+    "lat": 30.3848,
+    "lng": 74.3793,
+    "status": "Functional"
+  },
+  {
+    "id": 375,
+    "name": "CHC Bariwala",
+    "district": "Muktsar",
+    "lat": 30.5379,
+    "lng": 74.6525,
+    "status": "Functional"
+  },
+  {
+    "id": 376,
+    "name": "CHC Doda",
+    "district": "Muktsar",
+    "lat": 30.3832162267065,
+    "lng": 74.631175729747,
+    "status": "Functional"
+  },
+  {
+    "id": 377,
+    "name": "CHC Lambi",
+    "district": "Muktsar",
+    "lat": 30.0578,
+    "lng": 74.6078,
+    "status": "Functional"
+  },
+  {
+    "id": 378,
+    "name": "District Jail, Muktsar",
+    "district": "Muktsar",
+    "lat": 30.4798,
+    "lng": 74.5325,
+    "status": "Functional"
+  },
+  {
+    "id": 379,
+    "name": "PHC Kanian Wali",
+    "district": "Muktsar",
+    "lat": 30.6968,
+    "lng": 74.4811,
+    "status": "Functional"
+  },
+  {
+    "id": 380,
+    "name": "PHC Balam Garh",
+    "district": "Muktsar",
+    "lat": 30.3388,
+    "lng": 74.3206,
+    "status": "Functional"
+  },
+  {
+    "id": 381,
+    "name": "PHC HariKe Kalan",
+    "district": "Muktsar",
+    "lat": 30.4806,
+    "lng": 74.7074,
+    "status": "Functional"
+  },
+  {
+    "id": 382,
+    "name": "PHC Singhe Wala",
+    "district": "Muktsar",
+    "lat": 30.02127,
+    "lng": 74.69127,
+    "status": "Functional"
+  },
+  {
+    "id": 383,
+    "name": "PHC Kandu Khera",
+    "district": "Muktsar",
+    "lat": 29.9482,
+    "lng": 74.5038,
+    "status": "Functional"
+  },
+  {
+    "id": 384,
+    "name": "PHC Mahuana",
+    "district": "Muktsar",
+    "lat": 29.988,
+    "lng": 75.379,
+    "status": "Functional"
+  },
+  {
+    "id": 385,
+    "name": "PHC Alamwala",
+    "district": "Muktsar",
+    "lat": 30.2677,
+    "lng": 74.4218,
+    "status": "Functional"
+  },
+  {
+    "id": 386,
+    "name": "UPHC 1 Malout",
+    "district": "Muktsar",
+    "lat": 30.19318,
+    "lng": 74.50679,
+    "status": "Functional"
+  },
+  {
+    "id": 387,
+    "name": "UPHC 1 Muktsar",
+    "district": "Muktsar",
+    "lat": 30.47781,
+    "lng": 74.52066,
+    "status": "Functional"
+  },
+  {
+    "id": 388,
+    "name": " DH Pathankot",
+    "district": "Pathankot",
+    "lat": 32.2822,
+    "lng": 75.6533,
+    "status": "Functional"
+  },
+  {
+    "id": 389,
+    "name": "CHC Narot Jaimal Singh",
+    "district": "Pathankot",
+    "lat": 32.2944,
+    "lng": 75.457,
+    "status": "Functional"
+  },
+  {
+    "id": 390,
+    "name": "CHC Gharota",
+    "district": "Pathankot",
+    "lat": 32.1486572365132,
+    "lng": 75.5755933512596,
+    "status": "Functional"
+  },
+  {
+    "id": 391,
+    "name": "CHC Sujanpur",
+    "district": "Pathankot",
+    "lat": 32.3126617840757,
+    "lng": 75.6083459705065,
+    "status": "Functional"
+  },
+  {
+    "id": 392,
+    "name": "CHC Bungal Badhani",
+    "district": "Pathankot",
+    "lat": 32.3382461167527,
+    "lng": 75.768194303773,
+    "status": "Functional"
+  },
+  {
+    "id": 394,
+    "name": "PHC Dunera",
+    "district": "Pathankot",
+    "lat": 32.4450139886989,
+    "lng": 75.8866426348742,
+    "status": "Functional"
+  },
+  {
+    "id": 395,
+    "name": "PHC Bamyal",
+    "district": "Pathankot",
+    "lat": 32.2921,
+    "lng": 75.3787,
+    "status": "Functional"
+  },
+  {
+    "id": 397,
+    "name": "UPHC Pathankot",
+    "district": "Pathankot",
+    "lat": 32.2562350776025,
+    "lng": 75.6508147716728,
+    "status": "Functional"
+  },
+  {
+    "id": 398,
+    "name": "DDRC, Near Khalsa College, Patiala",
+    "district": "Patiala",
+    "lat": 30.3358,
+    "lng": 76.3774,
+    "status": "Functional"
+  },
+  {
+    "id": 399,
+    "name": "Central Jail, Patiala",
+    "district": "Patiala",
+    "lat": 30.34,
+    "lng": 76.38,
+    "status": "Functional"
+  },
+  {
+    "id": 400,
+    "name": "SDH Rajpura",
+    "district": "Patiala",
+    "lat": 30.483997,
+    "lng": 76.593948,
+    "status": "Functional"
+  },
+  {
+    "id": 401,
+    "name": "SDH Nabha",
+    "district": "Patiala",
+    "lat": 30.372458,
+    "lng": 76.145979,
+    "status": "Functional"
+  },
+  {
+    "id": 402,
+    "name": "SDH Samana",
+    "district": "Patiala",
+    "lat": 30.1541,
+    "lng": 76.1977,
+    "status": "Functional"
+  },
+  {
+    "id": 403,
+    "name": "CHC Bhadson",
+    "district": "Patiala",
+    "lat": 30.48655,
+    "lng": 76.17866,
+    "status": "Functional"
+  },
+  {
+    "id": 404,
+    "name": "CHC Dudhan Sadhan",
+    "district": "Patiala",
+    "lat": 30.15629,
+    "lng": 76.52739,
+    "status": "Functional"
+  },
+  {
+    "id": 405,
+    "name": "CHC Ghanaur",
+    "district": "Patiala",
+    "lat": 30.3276,
+    "lng": 76.6062,
+    "status": "Functional"
+  },
+  {
+    "id": 406,
+    "name": "CHC Kalo Majra",
+    "district": "Patiala",
+    "lat": 30.5214,
+    "lng": 76.6709,
+    "status": "Functional"
+  },
+  {
+    "id": 407,
+    "name": "CHC Model Town",
+    "district": "Patiala",
+    "lat": 30.341911,
+    "lng": 76.366288,
+    "status": "Functional"
+  },
+  {
+    "id": 408,
+    "name": "CHC Tripri",
+    "district": "Patiala",
+    "lat": 30.3571944018901,
+    "lng": 76.3899015949185,
+    "status": "Functional"
+  },
+  {
+    "id": 409,
+    "name": "CHC Badshahpur",
+    "district": "Patiala",
+    "lat": 30.0042,
+    "lng": 76.1705,
+    "status": "Functional"
+  },
+  {
+    "id": 410,
+    "name": "CHC Patran",
+    "district": "Patiala",
+    "lat": 29.941,
+    "lng": 76.0529,
+    "status": "Functional"
+  },
+  {
+    "id": 411,
+    "name": "CHC Shurtrana",
+    "district": "Patiala",
+    "lat": 29.9115217,
+    "lng": 76.1168565,
+    "status": "Functional"
+  },
+  {
+    "id": 412,
+    "name": "New District Jail Nabha Bhawanigarh Road",
+    "district": "Patiala",
+    "lat": 30.372458,
+    "lng": 76.145979,
+    "status": "Functional"
+  },
+  {
+    "id": 413,
+    "name": "PHC Balbera",
+    "district": "Patiala",
+    "lat": 30.1611,
+    "lng": 76.363,
+    "status": "Functional"
+  },
+  {
+    "id": 414,
+    "name": "PHC Gharaham",
+    "district": "Patiala",
+    "lat": 30.120808,
+    "lng": 76.480964,
+    "status": "Functional"
+  },
+  {
+    "id": 416,
+    "name": "PHC Sojja",
+    "district": "Patiala",
+    "lat": 30.33481,
+    "lng": 76.2359,
+    "status": "Functional"
+  },
+  {
+    "id": 419,
+    "name": "PHC Aarno",
+    "district": "Patiala",
+    "lat": 29.8585409730777,
+    "lng": 76.2117079469189,
+    "status": "Functional"
+  },
+  {
+    "id": 420,
+    "name": "PHC Kauli",
+    "district": "Patiala",
+    "lat": 30.410493,
+    "lng": 76.517041,
+    "status": "Functional"
+  },
+  {
+    "id": 421,
+    "name": "PHC Gajju Majra",
+    "district": "Patiala",
+    "lat": 30.36117,
+    "lng": 76.32587,
+    "status": "Functional"
+  },
+  {
+    "id": 422,
+    "name": "PHC Harpalpur",
+    "district": "Patiala",
+    "lat": 30.3967,
+    "lng": 76.59671,
+    "status": "Functional"
+  },
+  {
+    "id": 423,
+    "name": "UPHC Nabha",
+    "district": "Patiala",
+    "lat": 30.373674,
+    "lng": 76.145187,
+    "status": "Functional"
+  },
+  {
+    "id": 424,
+    "name": "UPHC Arya Samaj",
+    "district": "Patiala",
+    "lat": 30.333606999318,
+    "lng": 76.4034919110102,
+    "status": "Functional"
+  },
+  {
+    "id": 425,
+    "name": "UPHC City Branch",
+    "district": "Patiala",
+    "lat": 30.3240616,
+    "lng": 76.4057996,
+    "status": "Functional"
+  },
+  {
+    "id": 426,
+    "name": "UPHC Sullar",
+    "district": "Patiala",
+    "lat": 30.303316,
+    "lng": 76.392197,
+    "status": "Functional"
+  },
+  {
+    "id": 427,
+    "name": "UPHC Urban Estate alias Jujhar Nagar",
+    "district": "Patiala",
+    "lat": 30.344033,
+    "lng": 76.422903,
+    "status": "Functional"
+  },
+  {
+    "id": 428,
+    "name": "UPHC Rajpura 2",
+    "district": "Patiala",
+    "lat": 30.4877429,
+    "lng": 76.5943388,
+    "status": "Functional"
+  },
+  {
+    "id": 429,
+    "name": "M.K.H. Patiala",
+    "district": "Patiala",
+    "lat": 30.2012,
+    "lng": 76.2356,
+    "status": "Functional"
+  },
+  {
+    "id": 430,
+    "name": "DH Rupnagar",
+    "district": "Rupnagar",
+    "lat": 30.996,
+    "lng": 76.5251,
+    "status": "Functional"
+  },
+  {
+    "id": 431,
+    "name": "SDH Anandpur Sahib",
+    "district": "Rupnagar",
+    "lat": 31.234961,
+    "lng": 76.498808,
+    "status": "Functional"
+  },
+  {
+    "id": 432,
+    "name": "CHC Bharatgarh",
+    "district": "Rupnagar",
+    "lat": 31.096012,
+    "lng": 76.615395,
+    "status": "Functional"
+  },
+  {
+    "id": 433,
+    "name": "CHC Chamkaur Sahib",
+    "district": "Rupnagar",
+    "lat": 30.8981,
+    "lng": 76.4128,
+    "status": "Functional"
+  },
+  {
+    "id": 434,
+    "name": "CHC Morinda",
+    "district": "Rupnagar",
+    "lat": 30.7912,
+    "lng": 76.5025,
+    "status": "Functional"
+  },
+  {
+    "id": 435,
+    "name": "CHC Nurpur Bedi",
+    "district": "Rupnagar",
+    "lat": 31.12498,
+    "lng": 76.43505,
+    "status": "Functional"
+  },
+  {
+    "id": 436,
+    "name": "CH Nangal",
+    "district": "Rupnagar",
+    "lat": 31.3832,
+    "lng": 76.3766,
+    "status": "Functional"
+  },
+  {
+    "id": 437,
+    "name": "District Jail, Rupnagar",
+    "district": "Rupnagar",
+    "lat": 30.9536,
+    "lng": 76.5058,
+    "status": "Functional"
+  },
+  {
+    "id": 438,
+    "name": "PHC Purkhali",
+    "district": "Rupnagar",
+    "lat": 30.931418,
+    "lng": 76.634877,
+    "status": "Functional"
+  },
+  {
+    "id": 439,
+    "name": "PHC Kiratpur Sahib",
+    "district": "Rupnagar",
+    "lat": 31.1834,
+    "lng": 76.5693,
+    "status": "Functional"
+  },
+  {
+    "id": 440,
+    "name": "PHC Sahjowal",
+    "district": "Rupnagar",
+    "lat": 31.0391,
+    "lng": 76.6267,
+    "status": "Functional"
+  },
+  {
+    "id": 441,
+    "name": "UPHC Kotla Nihang",
+    "district": "Rupnagar",
+    "lat": 30.9518,
+    "lng": 76.538,
+    "status": "Functional"
+  },
+  {
+    "id": 442,
+    "name": "Drug Rehabilitation Centre, Sector-66, SAS Nagar",
+    "district": "Sahibzada Ajit Singh Nagar",
+    "lat": 30.675696,
+    "lng": 76.733096,
+    "status": "Functional"
+  },
+  {
+    "id": 443,
+    "name": "SDH Kharar",
+    "district": "Sahibzada Ajit Singh Nagar",
+    "lat": 30.74,
+    "lng": 76.65,
+    "status": "Functional"
+  },
+  {
+    "id": 444,
+    "name": "SDH Dera Bassi",
+    "district": "Sahibzada Ajit Singh Nagar",
+    "lat": 30.5848,
+    "lng": 76.845,
+    "status": "Functional"
+  },
+  {
+    "id": 446,
+    "name": "CHC Lalru",
+    "district": "Sahibzada Ajit Singh Nagar",
+    "lat": 30.491731,
+    "lng": 76.803112,
+    "status": "Functional"
+  },
+  {
+    "id": 447,
+    "name": "CHC Banur",
+    "district": "Sahibzada Ajit Singh Nagar",
+    "lat": 30.33,
+    "lng": 76.43,
+    "status": "Functional"
+  },
+  {
+    "id": 448,
+    "name": "CHC Antala",
+    "district": "Sahibzada Ajit Singh Nagar",
+    "lat": 30.39,
+    "lng": 76.91,
+    "status": "Functional"
+  },
+  {
+    "id": 449,
+    "name": "CHC Kurali",
+    "district": "Sahibzada Ajit Singh Nagar",
+    "lat": 30.8309927,
+    "lng": 76.5748309,
+    "status": "Functional"
+  },
+  {
+    "id": 450,
+    "name": "PHC Basauli",
+    "district": "Sahibzada Ajit Singh Nagar",
+    "lat": 30.4404,
+    "lng": 76.8663,
+    "status": "Non Functional"
+  },
+  {
+    "id": 451,
+    "name": "PHC Gharuan",
+    "district": "Sahibzada Ajit Singh Nagar",
+    "lat": 30.776168,
+    "lng": 76.558198,
+    "status": "Functional"
+  },
+  {
+    "id": 452,
+    "name": "PHC Majat",
+    "district": "Sahibzada Ajit Singh Nagar",
+    "lat": 30.9413,
+    "lng": 76.6748,
+    "status": "Functional"
+  },
+  {
+    "id": 453,
+    "name": "PHC Mullanpur",
+    "district": "Sahibzada Ajit Singh Nagar",
+    "lat": 30.593684,
+    "lng": 76.962879,
+    "status": "Functional"
+  },
+  {
+    "id": 454,
+    "name": "PHC Chandon",
+    "district": "Sahibzada Ajit Singh Nagar",
+    "lat": 30.775738,
+    "lng": 76.665319,
+    "status": "Non Functional"
+  },
+  {
+    "id": 455,
+    "name": "PHC Boothgarh",
+    "district": "Sahibzada Ajit Singh Nagar",
+    "lat": 30.83443,
+    "lng": 76.686937,
+    "status": "Functional"
+  },
+  {
+    "id": 456,
+    "name": "PHC Palheri",
+    "district": "Sahibzada Ajit Singh Nagar",
+    "lat": 30.78918,
+    "lng": 76.69281,
+    "status": "Functional"
+  },
+  {
+    "id": 457,
+    "name": "PHC Khijrabad",
+    "district": "Sahibzada Ajit Singh Nagar",
+    "lat": 30.875083,
+    "lng": 76.654997,
+    "status": "Functional"
+  },
+  {
+    "id": 458,
+    "name": "UPHC Baltana",
+    "district": "Sahibzada Ajit Singh Nagar",
+    "lat": 30.36566,
+    "lng": 76.52436,
+    "status": "Functional"
+  },
+  {
+    "id": 459,
+    "name": "UPHC Preet Colony",
+    "district": "Sahibzada Ajit Singh Nagar",
+    "lat": 30.65058,
+    "lng": 76.825287,
+    "status": "Non Functional"
+  },
+  {
+    "id": 460,
+    "name": "UPHC Mundi Kharar",
+    "district": "Sahibzada Ajit Singh Nagar",
+    "lat": 31.00369,
+    "lng": 76.54277,
+    "status": "Functional"
+  },
+  {
+    "id": 461,
+    "name": "UPHC Nayagaon",
+    "district": "Sahibzada Ajit Singh Nagar",
+    "lat": 30.7738620007025,
+    "lng": 76.7932576402802,
+    "status": "Functional"
+  },
+  {
+    "id": 462,
+    "name": "UPHC Phase 1",
+    "district": "Sahibzada Ajit Singh Nagar",
+    "lat": 30.4351,
+    "lng": 76.439,
+    "status": "Functional"
+  },
+  {
+    "id": 463,
+    "name": "UPHC Phase 11",
+    "district": "Sahibzada Ajit Singh Nagar",
+    "lat": 30.4045,
+    "lng": 76.4451,
+    "status": "Functional"
+  },
+  {
+    "id": 464,
+    "name": "UPHC Phase VII",
+    "district": "Sahibzada Ajit Singh Nagar",
+    "lat": 30.70593,
+    "lng": 76.7264577,
+    "status": "Functional"
+  },
+  {
+    "id": 465,
+    "name": "DH Mohali",
+    "district": "Sahibzada Ajit Singh Nagar",
+    "lat": 30.71805,
+    "lng": 76.729233,
+    "status": "Functional"
+  },
+  {
+    "id": 466,
+    "name": "Drug Rehabilitation Centre, Village Ghabdah, Sangrur",
+    "district": "Sangrur",
+    "lat": 30.257634,
+    "lng": 75.9580833,
+    "status": "Functional"
+  },
+  {
+    "id": 467,
+    "name": "SDH Dhuri",
+    "district": "Sangrur",
+    "lat": 30.373501,
+    "lng": 75.863197,
+    "status": "Functional"
+  },
+  {
+    "id": 468,
+    "name": "SDH Malerkotla",
+    "district": "Sangrur",
+    "lat": 30.5198017,
+    "lng": 75.8763359,
+    "status": "Functional"
+  },
+  {
+    "id": 469,
+    "name": "SDH Sunam",
+    "district": "Sangrur",
+    "lat": 30.1306,
+    "lng": 75.8014,
+    "status": "Functional"
+  },
+  {
+    "id": 470,
+    "name": "SDH Moonak",
+    "district": "Sangrur",
+    "lat": 29.8225,
+    "lng": 75.8885,
+    "status": "Functional"
+  },
+  {
+    "id": 471,
+    "name": "CHC Amargarh",
+    "district": "Sangrur",
+    "lat": 30.4633362,
+    "lng": 76.0127534,
+    "status": "Functional"
+  },
+  {
+    "id": 472,
+    "name": "CHC Bhawanigarh",
+    "district": "Sangrur",
+    "lat": 30.2614,
+    "lng": 76.0333,
+    "status": "Functional"
+  },
+  {
+    "id": 473,
+    "name": "CHC Ahmadgarh",
+    "district": "Sangrur",
+    "lat": 30.6795912,
+    "lng": 75.826819,
+    "status": "Functional"
+  },
+  {
+    "id": 474,
+    "name": "CHC Kauhrian",
+    "district": "Sangrur",
+    "lat": 29.9921,
+    "lng": 75.9144,
+    "status": "Functional"
+  },
+  {
+    "id": 475,
+    "name": "CHC Dirba",
+    "district": "Sangrur",
+    "lat": 30.0684,
+    "lng": 75.9861,
+    "status": "Functional"
+  },
+  {
+    "id": 476,
+    "name": "CHC Longowal",
+    "district": "Sangrur",
+    "lat": 30.2001,
+    "lng": 75.6755,
+    "status": "Functional"
+  },
+  {
+    "id": 477,
+    "name": "CHC Lehargaga",
+    "district": "Sangrur",
+    "lat": 29.9354,
+    "lng": 75.8106,
+    "status": "Functional"
+  },
+  {
+    "id": 478,
+    "name": "CHC Sherpur",
+    "district": "Sangrur",
+    "lat": 31.0444,
+    "lng": 75.5946,
+    "status": "Functional"
+  },
+  {
+    "id": 479,
+    "name": "DH Sangrur",
+    "district": "Sangrur",
+    "lat": 30.252,
+    "lng": 75.8357,
+    "status": "Functional"
+  },
+  {
+    "id": 480,
+    "name": "DISTRICT JAIL SANGRUR",
+    "district": "Sangrur",
+    "lat": 30.2476,
+    "lng": 75.8248,
+    "status": "Functional"
+  },
+  {
+    "id": 481,
+    "name": "CHC Maniana",
+    "district": "Sangrur",
+    "lat": 29.7473,
+    "lng": 75.9238,
+    "status": "Functional"
+  },
+  {
+    "id": 482,
+    "name": "PHC Mandvi",
+    "district": "Sangrur",
+    "lat": 29.8089,
+    "lng": 75.9884,
+    "status": "Functional"
+  },
+  {
+    "id": 483,
+    "name": "PHC Shadi Heri",
+    "district": "Sangrur",
+    "lat": 29.9569,
+    "lng": 75.9681,
+    "status": "Functional"
+  },
+  {
+    "id": 484,
+    "name": "PHC Fatehgarh Panj Garian",
+    "district": "Sangrur",
+    "lat": 30.5227,
+    "lng": 75.7052,
+    "status": "Functional"
+  },
+  {
+    "id": 485,
+    "name": "UPHC Lal Bazar Malerkotla",
+    "district": "Sangrur",
+    "lat": 30.5324491,
+    "lng": 75.8827206,
+    "status": "Functional"
+  },
+  {
+    "id": 486,
+    "name": "UPHC Qilla Rehmat Garh",
+    "district": "Sangrur",
+    "lat": 30.5328748,
+    "lng": 75.8938118,
+    "status": "Functional"
+  },
+  {
+    "id": 487,
+    "name": "UPHC 1 Dhuri",
+    "district": "Sangrur",
+    "lat": 30.3693,
+    "lng": 75.8607,
+    "status": "Functional"
+  },
+  {
+    "id": 488,
+    "name": "UPHC 1 Sangrur",
+    "district": "Sangrur",
+    "lat": 30.2299,
+    "lng": 75.8258,
+    "status": "Functional"
+  },
+  {
+    "id": 489,
+    "name": "UPHC 1 Sunam",
+    "district": "Sangrur",
+    "lat": 30.1306,
+    "lng": 75.81269,
+    "status": "Functional"
+  },
+  {
+    "id": 490,
+    "name": "PHC Kup Kalan",
+    "district": "Sangrur",
+    "lat": 30.6164856,
+    "lng": 75.8796585,
+    "status": "Functional"
+  },
+  {
+    "id": 491,
+    "name": "PHC Sant Attar Singh RH Cheema",
+    "district": "Sangrur",
+    "lat": 30.0939,
+    "lng": 75.6855,
+    "status": "Functional"
+  },
+  {
+    "id": 492,
+    "name": "Drug Rehabilitation Centre, Old DH, Nawanshahr",
+    "district": "Shaheed Bhagat Singh Nagar",
+    "lat": 31.116245,
+    "lng": 76.155567,
+    "status": "Functional"
+  },
+  {
+    "id": 493,
+    "name": "SDH Balachaur",
+    "district": "Shaheed Bhagat Singh Nagar",
+    "lat": 31.076006,
+    "lng": 76.29473,
+    "status": "Functional"
+  },
+  {
+    "id": 494,
+    "name": "CHC Rahon",
+    "district": "Shaheed Bhagat Singh Nagar",
+    "lat": 31.061666,
+    "lng": 76.116658,
+    "status": "Functional"
+  },
+  {
+    "id": 495,
+    "name": "CHC Banga",
+    "district": "Shaheed Bhagat Singh Nagar",
+    "lat": 31.184412,
+    "lng": 75.9958,
+    "status": "Functional"
+  },
+  {
+    "id": 496,
+    "name": "CHC Mukandpur",
+    "district": "Shaheed Bhagat Singh Nagar",
+    "lat": 31.126351,
+    "lng": 75.948515,
+    "status": "Functional"
+  },
+  {
+    "id": 497,
+    "name": "CHC Saroya",
+    "district": "Shaheed Bhagat Singh Nagar",
+    "lat": 31.180004,
+    "lng": 76.235161,
+    "status": "Functional"
+  },
+  {
+    "id": 498,
+    "name": "PHC Kathgarh",
+    "district": "Shaheed Bhagat Singh Nagar",
+    "lat": 31.042169,
+    "lng": 76.376976,
+    "status": "Functional"
+  },
+  {
+    "id": 500,
+    "name": "PHC Aur",
+    "district": "Shaheed Bhagat Singh Nagar",
+    "lat": 31.06913,
+    "lng": 76.000803,
+    "status": "Functional"
+  },
+  {
+    "id": 501,
+    "name": "PHC Muzaffarpur",
+    "district": "Shaheed Bhagat Singh Nagar",
+    "lat": 31.043303,
+    "lng": 76.226084,
+    "status": "Functional"
+  },
+  {
+    "id": 502,
+    "name": "PHC Jadla",
+    "district": "Shaheed Bhagat Singh Nagar",
+    "lat": 31.081952,
+    "lng": 76.216072,
+    "status": "Functional"
+  },
+  {
+    "id": 503,
+    "name": "PHC Sujjon",
+    "district": "Shaheed Bhagat Singh Nagar",
+    "lat": 31.208869,
+    "lng": 76.072209,
+    "status": "Functional"
+  },
+  {
+    "id": 505,
+    "name": "PHC Behram",
+    "district": "Shaheed Bhagat Singh Nagar",
+    "lat": 31.204629,
+    "lng": 75.893671,
+    "status": "Functional"
+  },
+  {
+    "id": 506,
+    "name": "UPHC Nawanshahar",
+    "district": "Shaheed Bhagat Singh Nagar",
+    "lat": 31.12232,
+    "lng": 76.110979,
+    "status": "Functional"
+  },
+  {
+    "id": 507,
+    "name": "Drug Rehabilitation Centre, Village Tharu, Tarn Taran",
+    "district": "Tarn Taran",
+    "lat": 31.477625,
+    "lng": 74.878764,
+    "status": "Functional"
+  },
+  {
+    "id": 508,
+    "name": "Drug Rehabilitation Centre, Vill. Bhagupur Havelian, Tarn Taran",
+    "district": "Tarn Taran",
+    "lat": 31.247224,
+    "lng": 74.838058,
+    "status": "Functional"
+  },
+  {
+    "id": 509,
+    "name": "SDH Khadoor Sahib",
+    "district": "Tarn Taran",
+    "lat": 31.359638,
+    "lng": 75.141096,
+    "status": "Functional"
+  },
+  {
+    "id": 510,
+    "name": "CHC Mianwind",
+    "district": "Tarn Taran",
+    "lat": 31.480773,
+    "lng": 75.154572,
+    "status": "Functional"
+  },
+  {
+    "id": 511,
+    "name": "CHC Ghariala",
+    "district": "Tarn Taran",
+    "lat": 31.228948,
+    "lng": 74.738118,
+    "status": "Functional"
+  },
+  {
+    "id": 512,
+    "name": "CHC Sirhali",
+    "district": "Tarn Taran",
+    "lat": 31.099691,
+    "lng": 74.915742,
+    "status": "Functional"
+  },
+  {
+    "id": 513,
+    "name": "CHC Sur Singh Wala",
+    "district": "Tarn Taran",
+    "lat": 31.391763,
+    "lng": 74.723967,
+    "status": "Functional"
+  },
+  {
+    "id": 514,
+    "name": "CHC Naushera Pannuan",
+    "district": "Tarn Taran",
+    "lat": 31.339815,
+    "lng": 74.956008,
+    "status": "Functional"
+  },
+  {
+    "id": 515,
+    "name": "CHC Khem Karan",
+    "district": "Tarn Taran",
+    "lat": 31.144545,
+    "lng": 74.568848,
+    "status": "Functional"
+  },
+  {
+    "id": 516,
+    "name": "CHC Kairon",
+    "district": "Tarn Taran",
+    "lat": 31.327125,
+    "lng": 74.864351,
+    "status": "Functional"
+  },
+  {
+    "id": 517,
+    "name": "CHC Hari Ke Pattan",
+    "district": "Tarn Taran",
+    "lat": 31.16666,
+    "lng": 74.945748,
+    "status": "Functional"
+  },
+  {
+    "id": 518,
+    "name": "CHC Kasel",
+    "district": "Tarn Taran",
+    "lat": 31.539207,
+    "lng": 74.748535,
+    "status": "Functional"
+  },
+  {
+    "id": 519,
+    "name": "CHC Brahmpura",
+    "district": "Tarn Taran",
+    "lat": 31.290114,
+    "lng": 75.019995,
+    "status": "Functional"
+  },
+  {
+    "id": 520,
+    "name": "DH Tarn Taran",
+    "district": "Tarn Taran",
+    "lat": 31.480773,
+    "lng": 75.154572,
+    "status": "Functional"
+  },
+  {
+    "id": 521,
+    "name": "SDH Patti",
+    "district": "Tarn Taran",
+    "lat": 31.279671,
+    "lng": 74.867186,
+    "status": "Functional"
+  },
+  {
+    "id": 522,
+    "name": "PHC Bhikhiwind",
+    "district": "Tarn Taran",
+    "lat": 31.346042,
+    "lng": 74.693795,
+    "status": "Functional"
+  },
+  {
+    "id": 523,
+    "name": "PHC Kirtowal",
+    "district": "Tarn Taran",
+    "lat": 31.18895,
+    "lng": 74.891831,
+    "status": "Functional"
+  },
+  {
+    "id": 524,
+    "name": "PHC Rajoke",
+    "district": "Tarn Taran",
+    "lat": 31.240658,
+    "lng": 75.022039,
+    "status": "Functional"
+  },
+  {
+    "id": 525,
+    "name": "PHC Goindwal",
+    "district": "Tarn Taran",
+    "lat": 31.367576,
+    "lng": 75.156367,
+    "status": "Functional"
+  },
+  {
+    "id": 526,
+    "name": "PHC Dhotian",
+    "district": "Tarn Taran",
+    "lat": 31.37587,
+    "lng": 75.001954,
+    "status": "Functional"
+  },
+  {
+    "id": 527,
+    "name": "PHC Chhabhal",
+    "district": "Tarn Taran",
+    "lat": 31.483997,
+    "lng": 74.792433,
+    "status": "Functional"
+  },
+  {
+    "id": 528,
+    "name": "PHC Delka",
+    "district": "Tarn Taran",
+    "lat": 31.416239,
+    "lng": 74.874486,
+    "status": "Functional"
+  },
+  {
+    "id": 529,
+    "name": "Central Jail Sri Goindwal Sahib",
+    "district": "Tarn Taran",
+    "lat": 31.357278,
+    "lng": 75.132645,
+    "status": "Functional"
+  },
+  {
+    "id": 530,
+    "name": "HAKIM KISHORI LAL HOSPITAL PVT. LTD.",
+    "district": "Fazilka",
+    "lat": 30.7105367,
+    "lng": 74.3990735,
+    "status": "Non Functional"
+  },
+  {
+    "id": 531,
+    "name": "CHC Lalru ",
+    "district": "Sahibzada Ajit Singh Nagar",
+    "lat": 30.4916,
+    "lng": 76.8029,
+    "status": "Functional"
+  }
+];
+        const EMBEDDED_DISTRICTS_GEOJSON = {
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Amritsar"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              74.6,
+              31.5
+            ],
+            [
+              75.15,
+              31.5
+            ],
+            [
+              75.15,
+              31.9
+            ],
+            [
+              74.6,
+              31.9
+            ],
+            [
+              74.6,
+              31.5
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Ludhiana"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              75.6,
+              30.65
+            ],
+            [
+              76.15,
+              30.65
+            ],
+            [
+              76.15,
+              31.1
+            ],
+            [
+              75.6,
+              31.1
+            ],
+            [
+              75.6,
+              30.65
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Jalandhar"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              75.4,
+              31.1
+            ],
+            [
+              75.95,
+              31.1
+            ],
+            [
+              75.95,
+              31.5
+            ],
+            [
+              75.4,
+              31.5
+            ],
+            [
+              75.4,
+              31.1
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Patiala"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              76.1,
+              30.1
+            ],
+            [
+              76.7,
+              30.1
+            ],
+            [
+              76.7,
+              30.6
+            ],
+            [
+              76.1,
+              30.6
+            ],
+            [
+              76.1,
+              30.1
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Bathinda"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              74.7,
+              29.95
+            ],
+            [
+              75.3,
+              29.95
+            ],
+            [
+              75.3,
+              30.4
+            ],
+            [
+              74.7,
+              30.4
+            ],
+            [
+              74.7,
+              29.95
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Gurdaspur"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              75.15,
+              31.9
+            ],
+            [
+              75.7,
+              31.9
+            ],
+            [
+              75.7,
+              32.45
+            ],
+            [
+              75.15,
+              32.45
+            ],
+            [
+              75.15,
+              31.9
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Hoshiarpur"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              75.7,
+              31.4
+            ],
+            [
+              76.3,
+              31.4
+            ],
+            [
+              76.3,
+              31.9
+            ],
+            [
+              75.7,
+              31.9
+            ],
+            [
+              75.7,
+              31.4
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Sangrur"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              75.6,
+              30.1
+            ],
+            [
+              76.1,
+              30.1
+            ],
+            [
+              76.1,
+              30.6
+            ],
+            [
+              75.6,
+              30.6
+            ],
+            [
+              75.6,
+              30.1
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Sahibzada Ajit Singh Nagar"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              76.5,
+              30.5
+            ],
+            [
+              76.9,
+              30.5
+            ],
+            [
+              76.9,
+              30.9
+            ],
+            [
+              76.5,
+              30.9
+            ],
+            [
+              76.5,
+              30.5
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Fazilka"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              73.95,
+              30.25
+            ],
+            [
+              74.6,
+              30.25
+            ],
+            [
+              74.6,
+              30.8
+            ],
+            [
+              73.95,
+              30.8
+            ],
+            [
+              73.95,
+              30.25
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Tarn Taran"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              74.6,
+              31.25
+            ],
+            [
+              75.15,
+              31.25
+            ],
+            [
+              75.15,
+              31.65
+            ],
+            [
+              74.6,
+              31.65
+            ],
+            [
+              74.6,
+              31.25
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Ferozpur"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              74.25,
+              30.65
+            ],
+            [
+              74.9,
+              30.65
+            ],
+            [
+              74.9,
+              31.15
+            ],
+            [
+              74.25,
+              31.15
+            ],
+            [
+              74.25,
+              30.65
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Muktsar"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              74.35,
+              30.2
+            ],
+            [
+              74.9,
+              30.2
+            ],
+            [
+              74.9,
+              30.65
+            ],
+            [
+              74.35,
+              30.65
+            ],
+            [
+              74.35,
+              30.2
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Moga"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              75.0,
+              30.5
+            ],
+            [
+              75.5,
+              30.5
+            ],
+            [
+              75.5,
+              30.95
+            ],
+            [
+              75.0,
+              30.95
+            ],
+            [
+              75.0,
+              30.5
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Fatehgarh Sahib"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              76.2,
+              30.5
+            ],
+            [
+              76.6,
+              30.5
+            ],
+            [
+              76.6,
+              30.85
+            ],
+            [
+              76.2,
+              30.85
+            ],
+            [
+              76.2,
+              30.5
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Barnala"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              75.4,
+              30.2
+            ],
+            [
+              75.75,
+              30.2
+            ],
+            [
+              75.75,
+              30.55
+            ],
+            [
+              75.4,
+              30.55
+            ],
+            [
+              75.4,
+              30.2
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Kapurthala"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              75.25,
+              31.2
+            ],
+            [
+              75.65,
+              31.2
+            ],
+            [
+              75.65,
+              31.5
+            ],
+            [
+              75.25,
+              31.5
+            ],
+            [
+              75.25,
+              31.2
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Shaheed Bhagat Singh Nagar"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              76.0,
+              31.0
+            ],
+            [
+              76.4,
+              31.0
+            ],
+            [
+              76.4,
+              31.35
+            ],
+            [
+              76.0,
+              31.35
+            ],
+            [
+              76.0,
+              31.0
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Mansa"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              75.15,
+              29.85
+            ],
+            [
+              75.6,
+              29.85
+            ],
+            [
+              75.6,
+              30.2
+            ],
+            [
+              75.15,
+              30.2
+            ],
+            [
+              75.15,
+              29.85
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Faridkot"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              74.6,
+              30.4
+            ],
+            [
+              75.0,
+              30.4
+            ],
+            [
+              75.0,
+              30.8
+            ],
+            [
+              74.6,
+              30.8
+            ],
+            [
+              74.6,
+              30.4
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Rupnagar"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              76.3,
+              30.85
+            ],
+            [
+              76.75,
+              30.85
+            ],
+            [
+              76.75,
+              31.2
+            ],
+            [
+              76.3,
+              31.2
+            ],
+            [
+              76.3,
+              30.85
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Pathankot"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              75.5,
+              32.15
+            ],
+            [
+              75.9,
+              32.15
+            ],
+            [
+              75.9,
+              32.5
+            ],
+            [
+              75.5,
+              32.5
+            ],
+            [
+              75.5,
+              32.15
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+};
+    </script>
+
+    <!-- Google Maps API - Replace YOUR_API_KEY with your actual key -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap" async defer></script>
+</body>
+</html>
