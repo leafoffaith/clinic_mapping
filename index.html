@@ -32,6 +32,12 @@
                     <option value="all">All Districts</option>
                 </select>
             </div>
+            <div class="designation-filter">
+                <label>Counsellor Role:</label>
+                <div id="designation-chips" class="designation-chips">
+                    <!-- chips populated by JS -->
+                </div>
+            </div>
         </div>
     </header>
 
@@ -58,6 +64,10 @@
                         <span id="clinic-coords" class="value"></span>
                     </div>
                 </div>
+                <div id="counsellors-section" class="counsellors-section" style="display:none;">
+                    <h3>Counsellors / POCs</h3>
+                    <div id="counsellors-list" class="counsellors-list"></div>
+                </div>
                 <div class="distance-section">
                     <h3>Distances to Other Clinics in <span id="distance-district"></span></h3>
                     <p class="distance-help">Click on a clinic below to zoom to it</p>
@@ -67,19 +77,24 @@
         </aside>
     </main>
 
-    <div class="legend">
+    <div class="legend" id="legend">
         <h4>Legend</h4>
-        <div class="legend-item">
-            <span class="marker-icon functional"></span>
-            <span>Functional</span>
+        <div id="legend-status-items">
+            <div class="legend-item">
+                <span class="marker-icon functional"></span>
+                <span>Functional</span>
+            </div>
+            <div class="legend-item">
+                <span class="marker-icon non-functional"></span>
+                <span>Non-Functional</span>
+            </div>
+            <div class="legend-item">
+                <span class="marker-icon selected"></span>
+                <span>Selected</span>
+            </div>
         </div>
-        <div class="legend-item">
-            <span class="marker-icon non-functional"></span>
-            <span>Non-Functional</span>
-        </div>
-        <div class="legend-item">
-            <span class="marker-icon selected"></span>
-            <span>Selected</span>
+        <div id="legend-designation-items" class="legend-designation-items" style="display:none;">
+            <!-- populated by JS when designation filter is active -->
         </div>
     </div>
 

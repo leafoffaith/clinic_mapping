@@ -29,17 +29,25 @@ async function init() {
         // Load district boundaries first (so they appear behind markers)
         loadDistrictBoundaries(districtsGeoJSON);
 
-        // Add clinic markers
-        addClinicsToMap(clinicsData.clinics);
+        // Add clinic markers (no designation filter active initially)
+        addClinicsToMap(clinicsData.clinics, activeDesignations);
 
         // Update UI
         updateStats(clinicsData.clinics);
         populateDistrictFilter(clinicsData.clinicsByDistrict);
 
+        // Populate designation filter chips from metadata (or derive from data)
+        const designations = (clinicsData.metadata && clinicsData.metadata.designations)
+            ? clinicsData.metadata.designations
+            : [...new Set(clinicsData.clinics.flatMap(c => (c.counsellors || []).map(x => x.designation)))].sort();
+        populateDesignationFilter(designations);
+
         // Set up event listeners
         setupEventListeners();
 
+        const counsellorCount = clinicsData.clinics.reduce((n, c) => n + (c.counsellors || []).length, 0);
         console.log(`Loaded ${clinicsData.clinics.length} clinics across ${Object.keys(clinicsData.clinicsByDistrict).length} districts`);
+        console.log(`Mapped ${counsellorCount} counsellors | Designations: ${designations.join(', ')}`);
 
     } catch (error) {
         console.error('Error initializing application:', error);
