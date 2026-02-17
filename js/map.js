@@ -7,7 +7,12 @@ const MAP_CONFIG = {
     center: [31.1471, 75.3412], // Punjab center
     zoom: 8,
     minZoom: 7,
-    maxZoom: 18
+    maxZoom: 18,
+    // Bounding box for Punjab state (SW corner, NE corner)
+    maxBounds: L.latLngBounds(
+        L.latLng(29.3, 73.5),   // south-west
+        L.latLng(32.8, 77.2)    // north-east
+    )
 };
 
 // Base marker colors (used when no designation filter is active)
@@ -85,6 +90,28 @@ let distanceLinesLayer;
 let selectedMarker = null;
 let allMarkers = [];
 
+// ESRI basemap tile layers
+const ESRI_ATTRIBUTION = 'Tiles &copy; <a href="https://www.esri.com/">Esri</a>';
+
+const ESRI_BASEMAPS = {
+    'Light Gray (GIS)': L.tileLayer(
+        'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',
+        { attribution: ESRI_ATTRIBUTION, maxZoom: 16 }
+    ),
+    'Street Map': L.tileLayer(
+        'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+        { attribution: ESRI_ATTRIBUTION, maxZoom: 20 }
+    ),
+    'Satellite Imagery': L.tileLayer(
+        'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        { attribution: ESRI_ATTRIBUTION + ' &mdash; Source: Esri, DigitalGlobe, GeoEye, Earthstar Geographics, CNES/Airbus DS, USDA, USGS', maxZoom: 20 }
+    ),
+    'Topographic': L.tileLayer(
+        'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
+        { attribution: ESRI_ATTRIBUTION, maxZoom: 20 }
+    )
+};
+
 /**
  * Initialize the Leaflet map
  */
@@ -93,14 +120,16 @@ function initMap() {
         center: MAP_CONFIG.center,
         zoom: MAP_CONFIG.zoom,
         minZoom: MAP_CONFIG.minZoom,
-        maxZoom: MAP_CONFIG.maxZoom
+        maxZoom: MAP_CONFIG.maxZoom,
+        maxBounds: MAP_CONFIG.maxBounds,
+        maxBoundsViscosity: 1.0,              // fully elastic — snaps back to Punjab
+        layers: [ESRI_BASEMAPS['Light Gray (GIS)']]   // default basemap
     });
 
-    // Add CartoDB Positron tiles (clean look for data viz)
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; <a href="https://carto.com/attributions">CARTO</a>',
-        subdomains: 'abcd',
-        maxZoom: 20
+    // Add basemap layer switcher control
+    L.control.layers(ESRI_BASEMAPS, {}, {
+        position: 'topright',
+        collapsed: false
     }).addTo(map);
 
     // Initialize layer groups
