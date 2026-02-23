@@ -36,7 +36,11 @@ async function init() {
         updateStats(clinicsData.clinics);
         populateDistrictFilter(clinicsData.clinicsByDistrict);
 
-        // Populate designation filter chips from metadata (or derive from data)
+        // Facility type chips (OOAT, Deaddiction, Rehabilitation)
+        const facilityTypes = [...new Set(clinicsData.clinics.map(c => c.facilityType).filter(Boolean))].sort();
+        populateFacilityTypeFilter(facilityTypes);
+
+        // Designation chips (Counsellor roles — OOAT only)
         const designations = (clinicsData.metadata && clinicsData.metadata.designations)
             ? clinicsData.metadata.designations
             : [...new Set(clinicsData.clinics.flatMap(c => (c.counsellors || []).map(x => x.designation)))].sort();

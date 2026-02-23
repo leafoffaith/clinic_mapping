@@ -22,6 +22,13 @@ const MARKER_COLORS = {
     selected: '#f97316'         // Orange (selected – distinct from designation colours)
 };
 
+// Border color per facility type — the only visual distinction between types
+const FACILITY_TYPE_BORDER = {
+    'OOAT':           '#ffffff',  // white  (existing behaviour)
+    'Deaddiction':    '#f59e0b',  // amber
+    'Rehabilitation': '#8b5cf6'   // violet
+};
+
 /**
  * Designation → colour mapping.
  * Must stay in sync with the CSS custom properties in styles.css.
@@ -165,42 +172,50 @@ function loadDistrictBoundaries(geojsonData) {
 }
 
 /**
- * Build the popup HTML for a clinic, including counsellors list.
- * When a designation filter is active only those counsellors are shown;
- * otherwise all counsellors are shown.
+ * Build the popup HTML for a clinic.
+ * OOAT: shows counsellors (filtered by active designation).
+ * Deaddiction / Rehabilitation: shows beds and IPD count instead.
  */
 function buildPopupHtml(clinic, activeDesignations) {
     const statusClass = clinic.status === 'Functional' ? 'functional' : 'non-functional';
-    const counsellors = clinic.counsellors || [];
+    const borderColor = FACILITY_TYPE_BORDER[clinic.facilityType] || '#ffffff';
 
-    // Decide which counsellors to show in the popup
-    const shown = (activeDesignations && activeDesignations.size > 0)
-        ? counsellors.filter(c => activeDesignations.has(c.designation))
-        : counsellors;
+    let extraHtml = '';
 
-    let counsellorHtml = '';
-    if (shown.length > 0) {
-        const rows = shown.map(c => {
-            const col = getDesignationColor(c.designation);
-            return `<div class="popup-counsellor" style="border-left:3px solid ${col};padding-left:5px;margin:3px 0;">
-                        <span style="font-weight:600;font-size:0.82rem;">${c.name}</span><br>
-                        <span style="font-size:0.75rem;color:#64748b;">${c.designation}</span>
-                        ${c.contact ? `<br><span style="font-size:0.72rem;color:#94a3b8;">${c.contact}</span>` : ''}
-                    </div>`;
-        }).join('');
-        counsellorHtml = `<div style="margin-top:6px;border-top:1px solid #e2e8f0;padding-top:6px;">
-                            <div style="font-size:0.78rem;font-weight:600;color:#334155;margin-bottom:4px;">
-                                Counsellors / POCs
-                            </div>
+    if (clinic.facilityType === 'OOAT') {
+        const counsellors = clinic.counsellors || [];
+        const shown = (activeDesignations && activeDesignations.size > 0)
+            ? counsellors.filter(c => activeDesignations.has(c.designation))
+            : counsellors;
+
+        if (shown.length > 0) {
+            const rows = shown.map(c => {
+                const col = getDesignationColor(c.designation);
+                return `<div class="popup-counsellor" style="border-left:3px solid ${col};padding-left:5px;margin:3px 0;">
+                            <span style="font-weight:600;font-size:0.82rem;">${c.name}</span><br>
+                            <span style="font-size:0.75rem;color:#64748b;">${c.designation}</span>
+                            ${c.contact ? `<br><span style="font-size:0.72rem;color:#94a3b8;">${c.contact}</span>` : ''}
+                        </div>`;
+            }).join('');
+            extraHtml = `<div style="margin-top:6px;border-top:1px solid #e2e8f0;padding-top:6px;">
+                            <div style="font-size:0.78rem;font-weight:600;color:#334155;margin-bottom:4px;">Counsellors / POCs</div>
                             ${rows}
-                          </div>`;
+                         </div>`;
+        }
+    } else {
+        // Deaddiction / Rehabilitation — show capacity info
+        extraHtml = `<div style="margin-top:6px;border-top:1px solid #e2e8f0;padding-top:6px;font-size:0.8rem;color:#475569;">
+                        <span style="font-weight:600;">Beds:</span> ${clinic.beds ?? '—'} &nbsp;|&nbsp;
+                        <span style="font-weight:600;">IPD (11 Apr 2025):</span> ${clinic.ipd_count ?? '—'}
+                     </div>`;
     }
 
     return `<div class="clinic-popup">
                 <strong>${clinic.name}</strong><br>
-                <span class="popup-district">${clinic.district}</span><br>
+                <span class="popup-district">${clinic.district}</span>
+                <span style="font-size:0.72rem;color:${borderColor === '#ffffff' ? '#94a3b8' : borderColor};font-weight:600;margin-left:4px;">${clinic.facilityType || ''}</span><br>
                 <span class="popup-status ${statusClass}">${clinic.status}</span>
-                ${counsellorHtml}
+                ${extraHtml}
             </div>`;
 }
 
@@ -210,11 +225,13 @@ function buildPopupHtml(clinic, activeDesignations) {
 function createClinicMarker(clinic, activeDesignations) {
     const color = getMarkerColor(clinic, activeDesignations);
 
+    const borderColor = FACILITY_TYPE_BORDER[clinic.facilityType] || '#ffffff';
+
     const marker = L.circleMarker([clinic.latitude, clinic.longitude], {
         radius: 8,
         fillColor: color,
-        color: '#ffffff',
-        weight: 2,
+        color: borderColor,
+        weight: borderColor === '#ffffff' ? 2 : 3,
         opacity: 1,
         fillOpacity: 0.85
     });

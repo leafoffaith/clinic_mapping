@@ -5,9 +5,25 @@
 // Global state
 let clinicsData = null;
 
-/** Currently active designation filters (Set<string>).
- *  Empty set means "no filter – show all". */
+/** Currently active designation filters (Set<string>). Empty = show all. */
 let activeDesignations = new Set();
+
+/** Currently active facility type filters (Set<string>). Empty = show all. */
+let activeFacilityTypes = new Set();
+
+/** Currently selected district. 'all' = no district filter. */
+let activeDistrict = 'all';
+
+/** Return clinics that pass both the district and facility type filters. */
+function getFilteredClinics() {
+    const byDistrict = activeDistrict === 'all'
+        ? clinicsData.clinics
+        : (clinicsData.clinicsByDistrict[activeDistrict] || []);
+
+    return activeFacilityTypes.size === 0
+        ? byDistrict
+        : byDistrict.filter(c => activeFacilityTypes.has(c.facilityType));
+}
 
 /**
  * Show distances (and counsellors) for the selected clinic in the sidebar.
@@ -221,15 +237,13 @@ function updateLegend() {
 }
 
 /**
- * Filter clinics by district
+ * Filter clinics by district (also applies active facility type filter).
  */
 function filterByDistrict(district) {
+    activeDistrict = district;
     closeSidebar();
 
-    const clinicsToShow = district === 'all'
-        ? clinicsData.clinics
-        : clinicsData.clinicsByDistrict[district] || [];
-
+    const clinicsToShow = getFilteredClinics();
     addClinicsToMap(clinicsToShow, activeDesignations);
     updateStats(clinicsToShow);
 
@@ -238,6 +252,51 @@ function filterByDistrict(district) {
     } else {
         map.setView(MAP_CONFIG.center, MAP_CONFIG.zoom);
     }
+}
+
+/**
+ * Build the facility type chip bar.
+ */
+function populateFacilityTypeFilter(facilityTypes) {
+    const container = document.getElementById('facility-type-chips');
+    if (!container) return;
+    container.innerHTML = '';
+
+    const colors = {
+        'OOAT':           '#6b7280',
+        'Deaddiction':    '#f59e0b',
+        'Rehabilitation': '#8b5cf6'
+    };
+
+    facilityTypes.forEach(type => {
+        const color = colors[type] || '#6b7280';
+        const chip = document.createElement('button');
+        chip.className = 'desig-chip';
+        chip.dataset.facilityType = type;
+        chip.style.background = color;
+        chip.innerHTML = `<span class="chip-dot"></span>${type}`;
+        chip.title = `Filter by ${type}`;
+        chip.addEventListener('click', () => toggleFacilityTypeFilter(type, chip));
+        container.appendChild(chip);
+    });
+}
+
+/**
+ * Toggle a facility type chip and re-render the map.
+ */
+function toggleFacilityTypeFilter(type, chipEl) {
+    if (activeFacilityTypes.has(type)) {
+        activeFacilityTypes.delete(type);
+        chipEl.classList.remove('active');
+    } else {
+        activeFacilityTypes.add(type);
+        chipEl.classList.add('active');
+    }
+
+    closeSidebar();
+    const clinicsToShow = getFilteredClinics();
+    addClinicsToMap(clinicsToShow, activeDesignations);
+    updateStats(clinicsToShow);
 }
 
 /**

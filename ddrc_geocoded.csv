@@ -1,0 +1,56 @@
+sn,facility_type,district,name,latitude,longitude,confidence,beds,ipd_count,status
+1,Deaddiction,Amritsar,"Swami Vivekananda Drug De-Addiction Centre, Govt Medical College & Hospital, Department of Psychiatry, Amritsar",31.650332,74.884509,GEOMETRIC_CENTER,50,32,Functional
+2,Deaddiction,Amritsar,"Govt Ayurvedic And Yoga De-Addiction Centre, Verka, Amritsar",31.664566,74.93025,APPROXIMATE,5,0,Non-Functional
+3,Deaddiction,Barnala,"Govt Deaddiction Centre, Civil Hospital, Barnala",30.375122,75.544534,GEOMETRIC_CENTER,10,5,Functional
+4,Deaddiction,Bathinda,"De-addiction Centre, District Hospital, Opp Civil Lines, Mansa Road, Bathinda",30.199036,74.946941,GEOMETRIC_CENTER,50,53,Functional
+5,Deaddiction,Faridkot,"De-Addiction Centre, Guru Gobind Singh Medical College & Hospital, Faridkot",30.680667,74.747345,GEOMETRIC_CENTER,50,27,Functional
+6,Deaddiction,Faridkot,"Govt Deaddiction Centre, Civil Hospital, Faridkot",30.679106,74.760399,GEOMETRIC_CENTER,10,0,Functional
+7,Deaddiction,Fatehgarh Sahib,"Govt Deaddiction Centre, Civil Hospital, Fatehgarh Sahib",30.646585,76.390035,GEOMETRIC_CENTER,10,10,Functional
+8,Deaddiction,Fazilka,"Govt Deaddiction Centre, Civil Hospital, Fazilka",30.40713,74.024688,GEOMETRIC_CENTER,10,6,Functional
+9,Deaddiction,Fazilka,"Govt Deaddiction Centre, SDH Abohar, Fazilka",30.143047,74.197093,GEOMETRIC_CENTER,10,3,Functional
+10,Deaddiction,Ferozepur,"Govt Deaddiction Centre, District Hospital, Ferozepur",30.952221,74.607862,GEOMETRIC_CENTER,10,14,Functional
+11,Deaddiction,Gurdaspur,"Govt Deaddiction Centre, Civil Hospital, Babri, Gurdaspur",32.017941,75.383324,GEOMETRIC_CENTER,10,2,Functional
+12,Deaddiction,Gurdaspur,"Mata Sulakhni Ji Sub Divisional Hospital, Batala, Gurdaspur",31.795882,75.223685,ROOFTOP,10,7,Functional
+13,Deaddiction,Hoshiarpur,"Govt Deaddiction Centre, Civil Hospital, Hoshiarpur",31.5298,75.900276,ROOFTOP,10,24,Functional
+14,Deaddiction,Hoshiarpur,"Govt Deaddiction Centre, SDH Dasuya, Hoshiarpur",31.807596,75.666195,GEOMETRIC_CENTER,10,11,Functional
+15,Deaddiction,Jalandhar,"Model De-Addiction Treatment Centre, Civil Hospital, Jalandhar",31.32627,75.573045,ROOFTOP,50,22,Functional
+16,Deaddiction,Jalandhar,"Govt Deaddiction Centre, Nur Mahal, Jalandhar",31.10342,75.593945,GEOMETRIC_CENTER,10,2,Functional
+17,Deaddiction,Kapurthala,"Govt De-Addiction Centre, Navjeevan Kendra, Kapurthala",31.376121,75.382477,GEOMETRIC_CENTER,30,32,Functional
+18,Deaddiction,Kapurthala,"Govt Deaddiction Centre, SDH Phagwara, Kapurthala",31.230085,75.763472,GEOMETRIC_CENTER,15,8,Functional
+19,Deaddiction,Kapurthala,"Govt De-Addiction Centre For Women, Navkiran Kendra, Civil Hospital, Kapurthala",31.375031,75.38285,GEOMETRIC_CENTER,25,6,Functional
+20,Deaddiction,Ludhiana,"Govt De-Addiction Centre, Civil Hospital, Ludhiana",30.906938,75.859511,GEOMETRIC_CENTER,10,2,Functional
+21,Deaddiction,Ludhiana,"Govt Deaddiction Centre, SDH Samrala, Ludhiana",30.839253,76.186661,GEOMETRIC_CENTER,10,10,Functional
+22,Deaddiction,Ludhiana,"Govt Deaddiction Centre, SDH Jagraon, Ludhiana",30.792334,75.467019,APPROXIMATE,10,0,Functional
+23,Deaddiction,Mansa,"Govt District Level De-Addiction Centre, Mansa",29.999507,75.393681,APPROXIMATE,10,4,Functional
+24,Deaddiction,Malerkotla,"Govt Deaddiction Centre, SDH Malerkotla",30.519802,75.87624,GEOMETRIC_CENTER,10,0,Functional
+25,Deaddiction,Moga,"Red Cross Drug De-addiction Centre, Janer, Moga",30.887709,75.174611,GEOMETRIC_CENTER,30,14,Functional
+26,Deaddiction,Muktsar,"Govt Deaddiction Centre, Civil Hospital, Muktsar Sahib",30.46359,74.537275,GEOMETRIC_CENTER,10,1,Functional
+27,Deaddiction,Muktsar,"Govt Deaddiction Centre, SDH Malout, Muktsar",30.186059,74.495326,GEOMETRIC_CENTER,10,0,Functional
+28,Deaddiction,Pathankot,"Govt Deaddiction Centre, District Hospital, Pathankot",32.281967,75.653316,GEOMETRIC_CENTER,20,11,Functional
+29,Deaddiction,Patiala,"Model De-Addiction Centre, Rajindra Medical College & Hospital, Patiala",30.32783,76.38102,ROOFTOP,50,7,Functional
+30,Deaddiction,Patiala,"Govt Deaddiction Centre, Civil Hospital, Rajpura, Patiala",30.478333,76.583097,GEOMETRIC_CENTER,10,0,Functional
+31,Deaddiction,Rupnagar,"Drug De-Addiction Centre, Civil Hospital, Bela Chowk, Rupnagar",31.238708,76.494804,GEOMETRIC_CENTER,10,10,Functional
+32,Deaddiction,Sangrur,"Govt Deaddiction Centre, District Hospital, Sangrur",30.245796,75.842072,APPROXIMATE,10,14,Functional
+33,Deaddiction,SAS Nagar,"Govt De-Addiction Centre, Phase-6, SAS Nagar, Mohali",30.718092,76.729178,GEOMETRIC_CENTER,10,12,Functional
+34,Deaddiction,SBS Nagar,"Drug De-Addiction Centre, Old Civil Hospital, SBS Nagar",31.091295,76.039191,APPROXIMATE,25,15,Functional
+35,Deaddiction,Tarn Taran,"Govt Deaddiction Centre, District Hospital, Tarn Taran",31.458829,74.924001,GEOMETRIC_CENTER,20,8,Functional
+36,Deaddiction,Tarn Taran,"Govt Deaddiction Centre, SDH Patti, Tarn Taran",31.274506,74.85669,GEOMETRIC_CENTER,20,3,Functional
+1,Rehabilitation,Amritsar,"Govt Drug Rehabilitation Centre, Dhobi Ghat, Circular Road, Near GMC, Amritsar",31.648062,74.88356,GEOMETRIC_CENTER,50,6,Functional
+2,Rehabilitation,Barnala,"Govt Drug Rehabilitation Center, Sohal Patti, Khuddi Road, Barnala",30.364728,75.52732,GEOMETRIC_CENTER,50,6,Non-Functional
+3,Rehabilitation,Bathinda,"Govt Drug Counseling And Rehabilitation Centre, Growth Centre, Mansa Road, Bathinda",30.082318,75.229668,GEOMETRIC_CENTER,50,22,Functional
+4,Rehabilitation,Faridkot,"Govt Drug Rehabilitation Centre, Arayanwala Road, Faridkot",30.728675,74.692735,GEOMETRIC_CENTER,50,7,Functional
+5,Rehabilitation,Fatehgarh Sahib,"Govt Drug Rehabilitation Center, Near Patiala By-Pass, Vill Bahman Majra, Fatehgarh Sahib",30.632063,76.415164,GEOMETRIC_CENTER,50,8,Functional
+6,Rehabilitation,Fazilka,"Govt Drug Rehabilitation Center, Jattiwali, Fazilka",30.403648,74.027962,APPROXIMATE,50,0,Functional
+7,Rehabilitation,Gurdaspur,"Govt Rehabilitation Centre, Vill Jeevanwal, Babbri, Gurdaspur",32.012385,75.372552,GEOMETRIC_CENTER,50,14,Functional
+8,Rehabilitation,Hoshiarpur,"Drug Rehabilitation Center, Mohalla Fatehgarh, Hoshiarpur",31.515787,75.913823,GEOMETRIC_CENTER,50,101,Functional
+9,Rehabilitation,Jalandhar,"Drug Rehabilitation Center, Vill Shekha, Near Lamba Pind, Jalandhar",31.341814,75.604077,APPROXIMATE,30,22,Functional
+10,Rehabilitation,Kapurthala,"Govt Drug Rehabilitation Centre, Nav Nirman Kendra, Kapurthala",31.372257,75.401765,APPROXIMATE,50,0,Non-Functional
+11,Rehabilitation,Ludhiana,"Govt Drug Rehabilitation Centre, Near Rani Jhansi Chowk, Jagraon, Ludhiana",30.796516,75.476391,ROOFTOP,50,14,Functional
+12,Rehabilitation,Mansa,"Govt Drug Rehabilitation Center, Thuthian Wali Road, Mansa",30.039498,75.386537,APPROXIMATE,15,0,Non-Functional
+13,Rehabilitation,Moga,"Govt Drug Rehabilitation Centre, Vill Janer, Moga",30.952184,75.129078,GEOMETRIC_CENTER,25,44,Functional
+14,Rehabilitation,Patiala,"Govt Drug Rehabilitation Centre, Badonger Road, Near Khalsa College, Patiala",30.361778,76.409922,ROOFTOP,30,1,Functional
+15,Rehabilitation,Sangrur,"Govt Rehabilitation Centres, Ghabdan, Near Mahavir Chowk, Sangrur",30.267389,75.936163,APPROXIMATE,50,28,Functional
+16,Rehabilitation,SAS Nagar,"Govt Rehabilitation Centre, Sector 66, SAS Nagar, Mohali",30.674234,76.735095,APPROXIMATE,50,23,Functional
+17,Rehabilitation,Muktsar,"Govt Drug Rehabilitation Center, Vpo Theri, Near Malout, Muktsar",30.277868,74.512906,ROOFTOP,50,2,Functional
+18,Rehabilitation,Tarn Taran,"Govt Drug Rehabilitation Center, Vill Tharu, Tarn Taran",31.477409,74.877759,APPROXIMATE,50,2,Functional
+19,Rehabilitation,Tarn Taran,"Govt Drug Rehabilitation Center, Vill Bhagupur, Tarn Taran",31.247769,74.836823,APPROXIMATE,50,0,Functional
