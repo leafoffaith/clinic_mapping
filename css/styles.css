@@ -11,81 +11,135 @@ body {
     overflow: hidden;
 }
 
-/* Header */
-.header {
-    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-    color: white;
-    padding: 1rem 1.5rem;
+/* ── Navbar (shared design language with landing page) ───────────────────── */
+.nav {
+    background: white;
+    border-bottom: 1px solid #e8ecf0;
+    padding: 0 2rem;
+    height: 64px;
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    flex-wrap: wrap;
-    gap: 1rem;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+    justify-content: space-between;
     position: relative;
     z-index: 1001;
 }
 
-.header-left h1 {
-    font-size: 1.4rem;
-    font-weight: 600;
-    margin-bottom: 0.2rem;
-}
-
-.header-left .subtitle {
-    font-size: 0.85rem;
-    opacity: 0.8;
-}
-
-.header-right {
+.nav-logo {
     display: flex;
     align-items: center;
-    gap: 1.5rem;
-    flex-wrap: wrap;
+    gap: 0.6rem;
+    text-decoration: none;
+}
+
+.nav-logo-mark {
+    width: 34px;
+    height: 34px;
+    background: #0f172a;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+}
+
+.nav-logo-text {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #0f172a;
+    letter-spacing: -0.3px;
+}
+
+.nav-page-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #64748b;
+}
+
+.nav-cta {
+    background: #22c55e;
+    color: white;
+    padding: 0.55rem 1.3rem;
+    border-radius: 999px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    transition: background 0.15s;
+}
+
+.nav-cta:hover { background: #16a34a; }
+
+/* ── Filter toolbar ──────────────────────────────────────────────────────── */
+.toolbar {
+    background: white;
+    border-bottom: 1px solid #e8ecf0;
+    padding: 0 2rem;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    overflow-x: auto;
+    position: relative;
+    z-index: 1000;
 }
 
 .stats {
     display: flex;
-    gap: 0.75rem;
+    gap: 0.5rem;
+    flex-shrink: 0;
 }
 
 .stat-badge {
-    padding: 0.35rem 0.75rem;
-    background: rgba(255, 255, 255, 0.1);
+    padding: 0.28rem 0.65rem;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
     border-radius: 6px;
-    font-size: 0.85rem;
+    font-size: 0.78rem;
     font-weight: 500;
+    color: #475569;
+    white-space: nowrap;
 }
 
 .stat-badge.functional {
-    background: rgba(34, 197, 94, 0.2);
-    color: #86efac;
+    background: #dcfce7;
+    color: #166534;
+    border-color: #bbf7d0;
 }
 
 .stat-badge.non-functional {
-    background: rgba(239, 68, 68, 0.2);
-    color: #fca5a5;
+    background: #fee2e2;
+    color: #991b1b;
+    border-color: #fecaca;
 }
 
 .district-filter {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.4rem;
+    flex-shrink: 0;
 }
 
 .district-filter label {
-    font-size: 0.9rem;
-    font-weight: 500;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #64748b;
+    white-space: nowrap;
 }
 
 .district-filter select {
-    padding: 0.4rem 0.75rem;
+    padding: 0.3rem 0.6rem;
     border-radius: 6px;
-    border: none;
-    background: rgba(255, 255, 255, 0.95);
-    font-size: 0.85rem;
+    border: 1px solid #e2e8f0;
+    background: white;
+    font-size: 0.78rem;
     cursor: pointer;
-    min-width: 180px;
+    min-width: 155px;
+    color: #1e293b;
 }
 
 .district-filter select:focus {
@@ -102,8 +156,9 @@ body {
 }
 
 .designation-filter label {
-    font-size: 0.9rem;
-    font-weight: 500;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #64748b;
     white-space: nowrap;
 }
 
@@ -156,7 +211,7 @@ body {
 /* Main container */
 .main-container {
     display: flex;
-    height: calc(100vh - 80px);
+    height: calc(100vh - 116px);   /* 64px nav + 52px toolbar */
     position: relative;
 }
 
@@ -597,32 +652,12 @@ body {
 
 /* Responsive */
 @media (max-width: 768px) {
-    .header {
-        padding: 0.75rem 1rem;
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .header-left h1 {
-        font-size: 1.1rem;
-    }
-
-    .header-right {
-        width: 100%;
-        justify-content: space-between;
-    }
-
-    .stats {
-        font-size: 0.75rem;
-        gap: 0.5rem;
-    }
-
-    .stat-badge {
-        padding: 0.25rem 0.5rem;
-    }
+    .nav { padding: 0 1rem; }
+    .nav-page-title { display: none; }
+    .toolbar { padding: 0 1rem; gap: 0.75rem; }
 
     .main-container {
-        height: calc(100vh - 120px);
+        height: calc(100vh - 116px);
     }
 
     .sidebar {

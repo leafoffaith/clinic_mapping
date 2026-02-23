@@ -29,16 +29,33 @@ async function init() {
         // Load district boundaries first (so they appear behind markers)
         loadDistrictBoundaries(districtsGeoJSON);
 
-        // Add clinic markers (no designation filter active initially)
-        addClinicsToMap(clinicsData.clinics, activeDesignations);
-
-        // Update UI
-        updateStats(clinicsData.clinics);
+        // Build UI controls before rendering markers
         populateDistrictFilter(clinicsData.clinicsByDistrict);
 
-        // Facility type chips (OOAT, Deaddiction, Rehabilitation)
         const facilityTypes = [...new Set(clinicsData.clinics.map(c => c.facilityType).filter(Boolean))].sort();
         populateFacilityTypeFilter(facilityTypes);
+
+        // Apply ?view= param from landing page before first render
+        const viewParam = new URLSearchParams(window.location.search).get('view');
+        const titleEl = document.getElementById('nav-page-title');
+        if (viewParam === 'ooat') {
+            activeFacilityTypes.add('OOAT');
+            if (titleEl) titleEl.textContent = 'OOAT Clinics';
+        } else if (viewParam === 'ddrc') {
+            activeFacilityTypes.add('Deaddiction');
+            activeFacilityTypes.add('Rehabilitation');
+            if (titleEl) titleEl.textContent = 'DDRC Centres';
+        }
+        if (activeFacilityTypes.size > 0) {
+            document.querySelectorAll('[data-facility-type]').forEach(chip => {
+                if (activeFacilityTypes.has(chip.dataset.facilityType)) chip.classList.add('active');
+            });
+        }
+
+        // Render markers respecting the pre-filter
+        const initialClinics = getFilteredClinics();
+        addClinicsToMap(initialClinics, activeDesignations);
+        updateStats(initialClinics);
 
         // Designation chips (Counsellor roles — OOAT only)
         const designations = (clinicsData.metadata && clinicsData.metadata.designations)
