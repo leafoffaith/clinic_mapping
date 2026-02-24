@@ -15,7 +15,7 @@ from pathlib import Path
 
 # ── paths ────────────────────────────────────────────────────────────────────
 BASE = Path(__file__).parent
-EXCEL_PATH = BASE / "1. Compiled list of counsellors (district-wise).xlsx"
+EXCEL_PATH = BASE / "counsellorList.xlsx"
 CLINICS_IN  = BASE / "data" / "clinics.json"
 CLINICS_OUT = BASE / "data" / "clinics.json"   # overwrite in place
 

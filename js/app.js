@@ -13,7 +13,7 @@ async function init() {
         // Load data files
         const [clinicsResponse, districtsResponse] = await Promise.all([
             fetch('data/clinics.json'),
-            fetch('data/punjab_districts.geojson')
+            fetch('data/punjabDistricts.geojson')
         ]);
 
         if (!clinicsResponse.ok) {

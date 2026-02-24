@@ -4,7 +4,7 @@ const path = require('path');
 
 // ── OOAT clinics from Excel ──────────────────────────────────────────────────
 
-const excelPath = path.join(__dirname, '3. Geo-tagging of OOAT Clinics _ Lattitude and Longitude (Coordinates).xlsx');
+const excelPath = path.join(__dirname, 'ooatGeotagging.xlsx');
 const workbook = XLSX.readFile(excelPath);
 const rawData = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
 
@@ -57,7 +57,7 @@ function parseCSVLine(line) {
     return result;
 }
 
-const csvPath = path.join(__dirname, 'ddrc_geocoded.csv');
+const csvPath = path.join(__dirname, 'ddrcGeocoded.csv');
 if (fs.existsSync(csvPath)) {
     const lines = fs.readFileSync(csvPath, 'utf8').trim().split('\n').map(l => l.replace(/\r$/, ''));
     const headers = parseCSVLine(lines[0]);
@@ -86,7 +86,7 @@ if (fs.existsSync(csvPath)) {
     });
     console.log(`Loaded DDRC/Rehab entries from ${csvPath}`);
 } else {
-    console.warn('ddrc_geocoded.csv not found — only OOAT clinics will be included.');
+    console.warn('ddrcGeocoded.csv not found — only OOAT clinics will be included.');
 }
 
 // ── Output ───────────────────────────────────────────────────────────────────

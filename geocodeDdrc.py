@@ -1,13 +1,13 @@
 """
 Geocode Govt Deaddiction and Rehabilitation centres from the IPD report PDF.
-Data extracted from: govt D-DA and Rehab report for IPD 11.4.25.pdf
+Data extracted from: ddrcIpdReport.pdf
 
 Usage:
     export GOOGLE_MAPS_API_KEY="your_key_here"
     pip install googlemaps
-    python geocode_ddrc.py
+    python geocodeDdrc.py
 
-Output: ddrc_geocoded.csv  (review this before running the next pipeline step)
+Output: ddrcGeocoded.csv  (review this before running the next pipeline step)
 """
 
 import csv
@@ -89,7 +89,7 @@ REHABILITATION = [
 
 # ── Geocoding ────────────────────────────────────────────────────────────────
 
-OUTPUT_FILE = "ddrc_geocoded.csv"
+OUTPUT_FILE = "ddrcGeocoded.csv"
 FIELDNAMES  = ["sn", "facility_type", "district", "name", "latitude", "longitude",
                "confidence", "beds", "ipd_count", "status"]
 
