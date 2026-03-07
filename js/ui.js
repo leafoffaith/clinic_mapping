@@ -44,6 +44,27 @@ function showDistancesToDistrict(clinic) {
         `${clinic.latitude.toFixed(4)}, ${clinic.longitude.toFixed(4)}`;
     document.getElementById('distance-district').textContent = clinic.district;
 
+    // ── Nodal Officer section ─────────────────────────────────────────────────
+    const nodalSection = document.getElementById('nodal-officer-section');
+    const nodalCard    = document.getElementById('nodal-officer-card');
+    const nodal        = clinic.nodalOfficer;
+
+    if (nodal && nodal.name) {
+        const trainingBadge = nodal.training
+            ? `<span class="training-badge ${nodal.training === 'Trained' ? 'trained' : 'untrained'}">${nodal.training}</span>`
+            : '';
+        nodalCard.innerHTML = `
+            <div class="nodal-info">
+                <div class="nodal-name">${nodal.name}</div>
+                ${nodal.contact ? `<div class="nodal-contact">${nodal.contact}</div>` : ''}
+                ${trainingBadge}
+            </div>`;
+        nodalSection.style.display = 'block';
+    } else {
+        nodalCard.innerHTML = '<p class="no-counsellors">No nodal officer mapped.</p>';
+        nodalSection.style.display = 'block';
+    }
+
     // ── Counsellors section ──────────────────────────────────────────────────
     const counsellorsSection = document.getElementById('counsellors-section');
     const counsellorsList    = document.getElementById('counsellors-list');

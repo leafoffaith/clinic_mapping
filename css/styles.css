@@ -396,6 +396,56 @@ body {
     margin-left: 0.75rem;
 }
 
+/* ── Nodal Officer section in sidebar ────────────────────────────────────── */
+.nodal-officer-section {
+    margin-bottom: 1.25rem;
+}
+
+.nodal-officer-section h3 {
+    font-size: 0.95rem;
+    margin-bottom: 0.6rem;
+    color: #334155;
+}
+
+.nodal-officer-card .nodal-info {
+    padding: 0.6rem 0.75rem;
+    background: #f0f9ff;
+    border-radius: 8px;
+    border: 1px solid #bae6fd;
+    border-left: 4px solid #0ea5e9;
+}
+
+.nodal-name {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.nodal-contact {
+    font-size: 0.72rem;
+    color: #94a3b8;
+    margin-top: 0.15rem;
+}
+
+.training-badge {
+    display: inline-block;
+    font-size: 0.7rem;
+    padding: 1px 6px;
+    border-radius: 4px;
+    margin-top: 0.3rem;
+    font-weight: 500;
+}
+
+.training-badge.trained {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.training-badge.untrained {
+    background: #fef9c3;
+    color: #854d0e;
+}
+
 /* ── Counsellors section in sidebar ──────────────────────────────────────── */
 .counsellors-section {
     margin-bottom: 1.25rem;

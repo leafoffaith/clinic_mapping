@@ -183,6 +183,22 @@ function buildPopupHtml(clinic, activeDesignations) {
     let extraHtml = '';
 
     if (clinic.facilityType === 'OOAT') {
+        // Nodal Officer
+        const nodal = clinic.nodalOfficer;
+        if (nodal && nodal.name) {
+            const trainingLabel = nodal.training
+                ? `<span style="font-size:0.7rem;padding:1px 5px;border-radius:3px;background:${nodal.training === 'Trained' ? '#dcfce7' : '#fef9c3'};color:${nodal.training === 'Trained' ? '#166534' : '#854d0e'};margin-left:4px;">${nodal.training}</span>`
+                : '';
+            extraHtml += `<div style="margin-top:6px;border-top:1px solid #e2e8f0;padding-top:6px;">
+                            <div style="font-size:0.78rem;font-weight:600;color:#334155;margin-bottom:4px;">Nodal Officer</div>
+                            <div style="border-left:3px solid #0ea5e9;padding-left:5px;margin:3px 0;">
+                                <span style="font-weight:600;font-size:0.82rem;">${nodal.name}</span>${trainingLabel}<br>
+                                ${nodal.contact ? `<span style="font-size:0.72rem;color:#94a3b8;">${nodal.contact}</span>` : ''}
+                            </div>
+                         </div>`;
+        }
+
+        // Counsellors
         const counsellors = clinic.counsellors || [];
         const shown = (activeDesignations && activeDesignations.size > 0)
             ? counsellors.filter(c => activeDesignations.has(c.designation))
@@ -197,10 +213,10 @@ function buildPopupHtml(clinic, activeDesignations) {
                             ${c.contact ? `<br><span style="font-size:0.72rem;color:#94a3b8;">${c.contact}</span>` : ''}
                         </div>`;
             }).join('');
-            extraHtml = `<div style="margin-top:6px;border-top:1px solid #e2e8f0;padding-top:6px;">
+            extraHtml += `<div style="margin-top:6px;border-top:1px solid #e2e8f0;padding-top:6px;">
                             <div style="font-size:0.78rem;font-weight:600;color:#334155;margin-bottom:4px;">Counsellors / POCs</div>
                             ${rows}
-                         </div>`;
+                          </div>`;
         }
     } else {
         // Deaddiction / Rehabilitation — show capacity info
